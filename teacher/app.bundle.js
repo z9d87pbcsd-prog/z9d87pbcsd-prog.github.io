@@ -1087,7 +1087,7 @@
     timerModal();
     timerTick();
   }
-  function printQuestionCell(q2, index) {
+  function printQuestionCell(q2, index, answers = false) {
     const prompt = q2.prompt.replace("Click a cell to make it dark; click again to make it white.", "Shade the cells with value 1.");
     let figure = q2.figure;
     if (q2.skill === "huffman-size") {
@@ -1096,22 +1096,53 @@
       figure = `<div class="table-wrap"><table><tbody>${rows.map((row) => `<tr><th scope="row">${esc(row[0])}</th>${row.slice(1).map((value) => `<td>${esc(value)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
     }
     const responses = q2.fields.some((f) => f.kind === "bitmap") ? bitmapFigure("0".repeat(q2.meta.data.length), q2.meta.w) : q2.fields.length ? `<div class="print-response-fields">${q2.fields.map((f) => `<div class="print-response-line"><span>${esc(f.label)}:</span><span class="print-response-blank"></span></div>`).join("")}</div>` : "";
-    return `<td class="print-question-cell" data-print-question="${index + 1}"><article class="print-question ${q2.kind === "written" ? "written" : ""} ${q2.skill === "huffman-size" ? "print-question-dense" : ""}"><h2 class="print-question-title">${index + 1}. ${esc(q2.title)} <span>${esc(q2.ref)}</span></h2><div class="question-copy">${prompt}</div><div class="figure">${figure}</div>${responses}<div class="print-working-space" aria-label="Space for your working"></div></article></td>`;
+    return `<div class="print-question-cell" data-print-question="${index + 1}"><article class="print-question ${q2.kind === "written" ? "written" : ""} ${q2.skill === "huffman-size" ? "print-question-dense" : ""}"><div class="print-question-content"><h2 class="print-question-title">${index + 1}. ${esc(q2.title)} <span>${esc(q2.ref)}</span></h2><div class="question-copy">${prompt}</div><div class="figure">${figure}</div>${answers ? modelHTML(q2) + `<ol class="step-list">${q2.steps.map((s) => `<li>${s.body}</li>`).join("")}</ol>` : responses}</div>${answers ? "" : '<div class="print-working-space" aria-label="Space for your working"></div>'}</article></div>`;
   }
-  function questionPrintPages(qs, title) {
-    const pageCount = Math.ceil(qs.length / 6);
-    return Array.from({ length: pageCount }, (_, page) => {
-      const offset = page * 6;
-      const cells = Array.from({ length: 6 }, (_2, i) => qs[offset + i] ? printQuestionCell(qs[offset + i], offset + i) : '<td class="print-question-cell print-empty-cell" aria-hidden="true"></td>');
-      return `<section class="print-question-page" aria-label="Page ${page + 1} of ${pageCount}"><header class="print-header"><h1>${esc(title)}</h1><div class="print-page-details"><p>AQA 8525 · Unit 3 · Original Bytesize practice</p><p>Name: ____________________ &nbsp; Class: __________ &nbsp; Date: __________</p></div><p class="print-instructions">Show your working. Use decimal storage prefixes. Follow the units stated in each question.</p></header><table class="print-question-grid" aria-label="Questions ${offset + 1} to ${Math.min(offset + 6, qs.length)}"><colgroup><col><col><col></colgroup><tbody><tr class="print-question-row">${cells.slice(0, 3).join("")}</tr><tr class="print-question-row">${cells.slice(3).join("")}</tr></tbody></table><footer class="print-footer"><span>Bytesize Whiteboard · Original practice, not an official AQA paper.</span><span>Page ${page + 1} of ${pageCount} · Questions ${offset + 1}–${Math.min(offset + 6, qs.length)} of ${qs.length}</span></footer></section>`;
-    }).join("");
+  function questionPrintPages(qs, title, { showTitle = true, answers = false } = {}) {
+    const columns = qs.length <= 2 ? qs.length : qs.length <= 4 ? 2 : qs.length <= 12 ? 3 : 4, rows = Math.ceil(qs.length / columns);
+    const cells = Array.from({ length: columns * rows }, (_, i) => qs[i] ? printQuestionCell(qs[i], i, answers) : '<div class="print-question-cell print-empty-cell" aria-hidden="true"></div>');
+    return `<section class="print-question-page" aria-label="${answers ? "Teacher answers" : "Pupil questions"} · single A4 landscape sheet"><header class="print-header">${showTitle ? `<h1>${esc(title)}</h1>` : ""}<div class="print-page-details"><p>Name: ____________________________________</p><p>Class: ______________</p><p>Date: ______________</p></div></header><div class="print-question-grid" style="--print-columns:${columns};--print-rows:${rows}" aria-label="Questions 1 to ${qs.length}">${cells.join("")}</div></section>`;
   }
-  function printSet(qs, answers = false, title = "Unit 3 · Data representation") {
+  function fitPrintQuestions(root) {
+    if (!root?.querySelectorAll) return;
+    root.classList.add("print-measuring");
+    try {
+      root.querySelectorAll(".print-question").forEach((article) => {
+        const content = article.querySelector(".print-question-content"), working = article.querySelector(".print-working-space");
+        content.style.zoom = "1";
+        const reserve = working ? parseFloat(getComputedStyle(working).minHeight) + parseFloat(getComputedStyle(working).marginTop) : 0;
+        const height = article.clientHeight - reserve, width = article.clientWidth;
+        if (height <= 0 || width <= 0) return;
+        const fits = (scale) => {
+          content.style.zoom = String(scale);
+          const bounds = content.getBoundingClientRect();
+          return bounds.height <= height + 0.25 && Math.max(bounds.width, content.scrollWidth * scale) <= width + 0.75;
+        };
+        if (fits(1)) return;
+        let low = 0, high = 1;
+        for (let attempt = 0; attempt < 12; attempt++) {
+          const middle = (low + high) / 2;
+          if (fits(middle)) low = middle;
+          else high = middle;
+        }
+        content.style.zoom = String(low * 0.995);
+      });
+    } finally {
+      root.classList.remove("print-measuring");
+    }
+  }
+  window.addEventListener("beforeprint", () => fitPrintQuestions($("#print-root")));
+  function printSet(qs, answers = false, title = "Unit 3 · Data representation", options = {}) {
     if (!qs.length) return;
     const root = $("#print-root");
     root.className = answers ? "answer-sheet" : "question-sheet";
-    root.innerHTML = answers ? `<header class="print-header"><h1>${esc(title)} · Teacher answers</h1><p>AQA 8525 · Unit 3 · Original Bytesize practice</p><p>Exact solutions and example marking points. Accept valid equivalent explanations.</p></header>${worksheetQuestions(qs, true)}<footer class="print-footer">Bytesize Whiteboard · ${qs.length} questions · Original practice, not an official AQA paper. File calculations exclude metadata as stated in each question.</footer>` : questionPrintPages(qs, title);
-    window.print();
+    root.innerHTML = questionPrintPages(qs, title, { ...options, answers });
+    const run = () => {
+      fitPrintQuestions(root);
+      window.print();
+    };
+    if (document.fonts?.ready) return document.fonts.ready.then(run);
+    run();
   }
   function download(name, text, type) {
     const blob = new Blob([text], { type }), a = document.createElement("a"), url = URL.createObjectURL(blob);
@@ -1910,7 +1941,7 @@
       return;
     }
     if (a === "print-practice") {
-      printSet(state.practiceQs, false, state.practiceSkill ? SKILLS.find((s2) => s2.id === state.practiceSkill).title : "Unit 3 · Mixed retrieval");
+      printSet(state.practiceQs, false, "", { showTitle: false });
       return;
     }
     if (a === "skill-worksheet") {

@@ -14,7 +14,7 @@ dialog{border:1px solid #d9cee6;border-radius:18px;padding:28px;max-width:650px;
 @media(max-width:980px){.layout{grid-template-columns:185px minmax(0,1fr)}.sidebar{width:185px;padding:25px 9px}.nav button{padding:12px 10px;font-size:.79rem;gap:9px}.brand{padding-left:8px}.brand strong{font-size:1.3rem}.brand small{font-size:.5rem}.unit-tag{padding:12px;margin:25px 5px}.hero-art{display:none}.hero-copy{max-width:100%}.stage-grid{grid-template-columns:1fr}.stage-body{min-height:300px;font-size:calc(1rem * var(--qscale))}.stage-head strong{font-size:1rem}.stage-head small{font-size:.7rem}.stage-number{display:grid}.stage-actions button{min-width:32px}.stage-foot .btn{font-size:.76rem}.quick-strip{gap:8px}.quick-card{display:block;position:relative}.quick-icon{margin-bottom:10px}.quick-card>.ico{position:absolute;top:20px;right:12px}.builder-grid{grid-template-columns:1fr}.settings-panel{position:static}.check-group{grid-template-columns:1fr 1fr}.split{grid-template-columns:1fr}.page-heading{flex-wrap:wrap}.practice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pill{display:none}.skill-row .row-number{display:none}.skill-meta small{display:none}.skill-row .buttons .btn span{display:none}.skill-row .buttons .btn{min-width:33px}.skill-row .buttons .btn .ico{width:17px}.skill-row .buttons{gap:3px}.skill-row{gap:8px;padding:13px 16px}.topic-head{padding:17px 16px}.topic-head .tag{font-size:.58rem}.library-summary{gap:12px;flex-wrap:wrap}.teach-heading{align-items:flex-start;flex-wrap:wrap}.presentation .stage-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.presentation .stage-body{font-size:calc(.9rem * var(--qscale))}.presentation .stage-head{padding:15px 12px}.focus-view.stage-grid{grid-template-columns:1fr}.focus-view .stage-body{padding:25px}.blank-footer{flex-wrap:wrap}}
 @media(max-width:680px){.layout{display:block}.sidebar{transform:translateX(-100%);transition:.2s;width:244px}.sidebar.open{transform:none;box-shadow:30px 0 60px #25153744}.content{width:100%}.mobile-menu{display:inline-flex}.topbar{height:65px;padding:0 16px}.top-actions{gap:6px}.breadcrumb{gap:7px;font-size:.75rem}.breadcrumb .muted,.breadcrumb .crumb-sep{display:none}.top-actions .font-tools{display:none}.page,.teach-page{padding:22px 16px}.hero{padding:25px 23px;border-radius:14px}.hero h1{font-size:2rem}.hero p{font-size:.82rem}.hero .buttons{gap:7px}.hero .btn{font-size:.74rem;padding:9px 12px}.quick-card strong{font-size:.72rem}.quick-card small{display:none}.quick-strip{margin-bottom:23px}.quick-card>.ico{display:none}.quick-card{padding:13px 12px}.quick-icon{margin-bottom:9px;width:31px;height:31px}.section-title h2{font-size:1rem}.section-title p{font-size:.68rem}.search-wrap{min-width:180px}.library-toolbar{gap:7px}.library-toolbar select{max-width:145px;font-size:.75rem}.filter-chips{gap:5px;margin-bottom:18px}.filter-chips button{font-size:.65rem;padding:7px 10px}.topic-head .topic-symbol{width:34px;height:34px}.topic-head h2{font-size:.9rem}.topic-head p{font-size:.65rem}.topic-head .tag{display:none}.skill-meta strong{font-size:.76rem}.skill-row .buttons .btn span{display:none}.skill-row .buttons .btn{padding:6px;min-height:33px}.skill-row>.fav{font-size:17px}.skill-row{padding:12px 13px}.skill-row .buttons{gap:2px}.page-heading h1{font-size:1.5rem}.practice-grid{grid-template-columns:1fr}.check-group{grid-template-columns:1fr 1fr}.settings-panel{padding:19px}.controls .buttons{flex-wrap:wrap}.controls .drawing-tools{gap:7px}.controls .segmented button{font-size:.68rem;padding:7px 10px}.teach-heading h1{font-size:1.35rem}.teach-heading .buttons .btn{font-size:.7rem;padding:8px 10px}.stage-body{font-size:calc(.96rem * var(--qscale))}.teacher-note{font-size:.7rem;align-items:flex-start}.presentation .stage-grid{grid-template-columns:1fr}.presentation .stage-body{font-size:calc(1.1rem * var(--qscale))}.focus-view .stage-body{padding:23px;min-height:420px}.stage-foot .btn{font-size:.72rem}.worksheet-preview{padding:20px}.blank-controls{padding:11px;gap:8px}.blank-controls select{max-width:135px}.board-paper{min-height:350px;height:55vh}.blank-controls .btn{font-size:.7rem}.blank-controls .ico{width:17px}.queue-item{padding:13px 12px;gap:8px}.queue-item .buttons{gap:2px}.queue-item .icon-btn{min-width:29px;min-height:29px;padding:5px}.queue-item strong{font-size:.76rem}.info-grid{grid-template-columns:1fr}.lesson-nav{flex-wrap:wrap}.library-toolbar .btn{font-size:.7rem}.blank-controls .group label{font-size:.7rem}.status-line{font-size:.65rem}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-@media print{@page{size:A4;margin:15mm}body{background:white;color:#222;font-size:11pt}#app,#toast,dialog,.skip{display:none!important}#print-root{display:block!important}#print-root .print-header h1{font-size:20pt;margin:0 0 8px}#print-root .print-header p{margin:4px 0;font-size:9pt;color:#555}#print-root .worksheet-item{font-size:10.5pt;padding:20px 0;border-color:#bbb}#print-root .worksheet-item .question-copy{font-size:10.5pt;line-height:1.65}#print-root .question-number{font-size:9pt;color:#555}#print-root .answer-space{border-bottom:1px solid #bbb;background:none;min-height:45px}#print-root .written .answer-space{min-height:90px}#print-root .number-display{font-size:13pt;color:#222}#print-root .table-wrap{margin:10px 0}#print-root table{font-size:9pt}#print-root th,#print-root td{color:#222;background:white;border-color:#aaa}#print-root .huffman-tree{max-width:300px;max-height:235px}#print-root .bitmap-grid{width:150px}#print-root .binary-sum{font-size:14pt;color:#222}#print-root .model-answer{background:white;border:0;padding:5px 0;color:#222}#print-root .model-answer strong{color:#555}#print-root .model-answer .model-row{border-color:#bbb}#print-root .waveform{max-width:350px}#print-root .step-list li{font-size:9pt;color:#555}#print-root code{color:#222;background:none}#print-root .figure-caption{font-size:8pt;color:#555}#print-root .model-answer .bitmap-grid{break-inside:avoid}.print-footer{color:#777;font-size:8pt}a{color:inherit;text-decoration:none}}
+@media print{@page{size:A4 landscape;margin:10mm}body,body.six-question-mode{background:white;color:#222;margin:0;overflow:visible;height:auto}#app,#toast,dialog,.skip{display:none!important}#print-root{display:block!important}a{color:inherit;text-decoration:none}}
 
 /* Six-question classroom display. Only the card bodies scroll; the clock stays above them. */
 .timer-sound-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid #e8dfee;margin-top:20px;padding-top:18px}.timer-sound-controls .toggle-label{font-size:.83rem;line-height:1.5}.timer-sound-controls input{width:17px;height:17px}
@@ -114,47 +114,52 @@ body.six-question-mode{overflow:hidden;background:#f1eef7}
 .practice-workspace .practice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:680px){.practice-settings-bar{padding:16px}.practice-settings-main{gap:10px}.practice-settings-main h2{flex-basis:100%}.practice-topic-heading{gap:7px 10px}.practice-topic-heading .topic-selection-status{margin-left:0}.practice-topic-choices label{font-size:.69rem;padding:7px 8px}.practice-workspace .practice-grid{grid-template-columns:1fr}.practice-workspace .set-toolbar{flex-wrap:wrap}}
 
-/* Each pupil sheet is an A4 landscape page with a genuine three-by-two table. */
+/* Physical print dimensions also apply while measuring, before opening the print dialog. */
+#print-root{width:277mm;margin:0;padding:0;color:#222;background:white;font:9pt/1.35 Arial,sans-serif;--qscale:1}
+#print-root .print-question-page{width:277mm;height:188mm;display:flex;flex-direction:column;break-inside:avoid;page-break-inside:avoid}
+#print-root .print-header{flex:none;height:auto;min-height:0;border-bottom:1px solid #777;margin:0 0 2mm;padding:0 0 2mm}
+#print-root .print-header h1{font-size:12pt;line-height:1.15;letter-spacing:0;margin:0 0 2mm;overflow-wrap:anywhere;color:#222}
+#print-root .print-page-details{display:flex;align-items:baseline;justify-content:space-between;gap:5mm}
+#print-root .print-page-details p{font-size:9pt;line-height:1.3;margin:0;white-space:nowrap;color:#222}
+#print-root .print-question-grid{display:grid;grid-template-columns:repeat(var(--print-columns),minmax(0,1fr));grid-template-rows:repeat(var(--print-rows),minmax(0,1fr));flex:1;min-height:0;width:100%;border-top:1px solid #777;border-left:1px solid #777}
+#print-root .print-question-cell{min-width:0;min-height:0;border-right:1px solid #777;border-bottom:1px solid #777;padding:2.5mm;text-align:left;overflow-wrap:anywhere;break-inside:avoid;page-break-inside:avoid}
+#print-root .print-question{height:100%;min-height:0;display:flex;flex-direction:column;font-size:9pt;line-height:1.35}
+#print-root .print-question-content{flex:none;min-width:0}
+#print-root .print-question-title{font-size:9pt;line-height:1.25;letter-spacing:0;margin:0 0 2mm;color:#222}
+#print-root .print-question-title span{font-weight:400;font-size:7pt;white-space:nowrap;color:#555}
+#print-root .question-copy{font-size:9pt;line-height:1.35;font-weight:400;margin:0 0 1.5mm}
+#print-root .question-copy p{margin:0 0 1mm;line-height:inherit}
+#print-root .figure{min-width:0}
+#print-root .table-wrap{margin:1mm 0 2mm;overflow:visible;max-width:none}
+#print-root table{font-size:7.5pt;width:100%;table-layout:auto;border-collapse:collapse}
+#print-root th,#print-root td{padding:1mm;line-height:1.2;overflow-wrap:anywhere;color:#222;background:white;border-color:#aaa}
+#print-root .number-display{font-size:11pt;line-height:1.4;margin:1mm 0 2mm;color:#222}
+#print-root .binary-sum{font-size:12pt;line-height:1.4;max-width:52mm;margin:1mm auto 2mm;color:#222}
+#print-root .binary-sum hr{margin:1mm 0;border-color:#555}
+#print-root .huffman-tree{width:100%;height:clamp(12mm,calc(66mm / var(--print-rows)),33mm);max-height:33mm;margin:0 auto 2mm;color:#333}
+#print-root .huffman-tree text{fill:#222}
+#print-root .waveform{width:100%;height:clamp(12mm,calc(56mm / var(--print-rows)),28mm);max-height:28mm;margin:0 auto 2mm}
+#print-root .bitmap-grid{width:22mm;margin:1mm auto 2mm;flex-shrink:0}
+#print-root .pixel.on{background:#222;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+#print-root .figure-caption{font-size:7pt;line-height:1.25;margin:1mm 0 2mm;color:#444}
+#print-root code{padding:0;font-size:1em;overflow-wrap:anywhere;color:#222;background:none}
+#print-root .print-response-fields{margin-top:1mm}
+#print-root .print-response-line{display:flex;align-items:baseline;gap:2mm;font-size:8pt;line-height:1.3;margin:1mm 0}
+#print-root .print-response-blank{flex:1;min-width:10mm;border-bottom:1px solid #888}
+#print-root .print-working-space{flex:1;min-height:clamp(3mm,calc(12mm / var(--print-rows)),5mm);margin-top:1.5mm;border-bottom:1px solid #ccc}
+#print-root .written .print-working-space{background:repeating-linear-gradient(to bottom,transparent 0,transparent 5.8mm,#ddd 5.8mm,#ddd 6mm);print-color-adjust:exact;-webkit-print-color-adjust:exact}
+#print-root .print-question-dense .table-wrap th,#print-root .print-question-dense .table-wrap td{padding:.7mm}
+#print-root .model-answer{background:white;border:0;padding:1mm 0;color:#222;margin:1mm 0}
+#print-root .model-answer strong{color:#333}
+#print-root .model-answer .model-row{border-color:#bbb}
+#print-root .step-list{margin:1mm 0 0;padding-left:4mm}
+#print-root .step-list li{font-size:8pt;line-height:1.3;color:#333;margin:0 0 1mm}
+@media screen{
+ #print-root.print-measuring{display:block!important;visibility:hidden;position:fixed;left:-10000px;top:0}
+}
 @media print{
  @page bytesizeQuestions{size:A4 landscape;margin:10mm}
- @page bytesizeAnswers{size:A4 portrait;margin:15mm}
+ @page bytesizeAnswers{size:A4 landscape;margin:10mm}
  #print-root.question-sheet{page:bytesizeQuestions}
  #print-root.answer-sheet{page:bytesizeAnswers}
- #print-root.question-sheet .print-question-page{width:277mm;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
- #print-root.question-sheet .print-question-page:last-child{break-after:auto;page-break-after:auto}
- #print-root.question-sheet .print-header{height:19mm;padding:0 0 2mm}
- #print-root.question-sheet .print-header h1{font-size:12pt;line-height:1.15;letter-spacing:0;margin:0 0 1.5mm;overflow-wrap:anywhere}
- #print-root.question-sheet .print-page-details{display:flex;align-items:baseline;justify-content:space-between;gap:4mm}
- #print-root.question-sheet .print-header p{font-size:7.5pt;line-height:1.3;margin:0;color:#333}
- #print-root.question-sheet .print-header .print-instructions{font-size:7pt;margin-top:1mm}
- #print-root.question-sheet .print-question-grid{width:100%;height:164mm;border-collapse:collapse;table-layout:fixed;border:1px solid #777;margin:0;font-size:9pt}
- #print-root.question-sheet .print-question-row{height:82mm;break-inside:avoid;page-break-inside:avoid}
- #print-root.question-sheet .print-question-cell{width:33.333%;height:82mm;border:1px solid #777;padding:3mm;vertical-align:top;text-align:left;break-inside:avoid;page-break-inside:avoid;overflow-wrap:anywhere}
- #print-root.question-sheet .print-question{height:75mm;display:flex;flex-direction:column;font-size:9pt;line-height:1.35}
- #print-root.question-sheet .print-question-title{font-size:9pt;line-height:1.25;letter-spacing:0;margin:0 0 2mm;color:#222;flex-shrink:0}
- #print-root.question-sheet .print-question-title span{font-weight:400;font-size:7pt;white-space:nowrap;color:#555}
- #print-root.question-sheet .question-copy{font-size:9pt;line-height:1.35;font-weight:400;margin:0 0 1.5mm;flex-shrink:0}
- #print-root.question-sheet .question-copy p{margin:0 0 1mm;line-height:inherit}
- #print-root.question-sheet .figure{min-width:0;flex-shrink:0}
- #print-root.question-sheet .table-wrap{margin:1mm 0 2mm;overflow:visible}
- #print-root.question-sheet .table-wrap table{font-size:7.5pt;width:100%;table-layout:auto}
- #print-root.question-sheet .table-wrap th,#print-root.question-sheet .table-wrap td{padding:1mm;line-height:1.2;overflow-wrap:anywhere}
- #print-root.question-sheet .number-display{font-size:11pt;line-height:1.4;margin:1mm 0 2mm;color:#222}
- #print-root.question-sheet .binary-sum{font-size:12pt;line-height:1.4;max-width:52mm;margin:1mm auto 2mm;color:#222}
- #print-root.question-sheet .binary-sum hr{margin:1mm 0;border-color:#555}
- #print-root.question-sheet .huffman-tree{width:100%;height:33mm;max-height:33mm;margin:0 auto 2mm;color:#333}
- #print-root.question-sheet .huffman-tree text{fill:#222}
- #print-root.question-sheet .waveform{width:100%;height:28mm;max-height:28mm;margin:0 auto 2mm}
- #print-root.question-sheet .bitmap-grid{width:22mm;margin:1mm auto 2mm;flex-shrink:0}
- #print-root.question-sheet .pixel.on{background:#222;print-color-adjust:exact;-webkit-print-color-adjust:exact}
- #print-root.question-sheet .figure-caption{font-size:7pt;line-height:1.25;margin:1mm 0 2mm;color:#444}
- #print-root.question-sheet code{padding:0;font-size:1em;overflow-wrap:anywhere}
- #print-root.question-sheet .print-response-fields{margin-top:1mm;flex-shrink:0}
- #print-root.question-sheet .print-response-line{display:flex;align-items:baseline;gap:2mm;font-size:8pt;line-height:1.3;margin:1mm 0}
- #print-root.question-sheet .print-response-blank{flex:1;min-width:10mm;border-bottom:1px solid #888}
- #print-root.question-sheet .print-working-space{flex:1;min-height:6mm;margin-top:2mm;border-bottom:1px solid #ccc}
- #print-root.question-sheet .written .print-working-space{background:repeating-linear-gradient(to bottom,transparent 0,transparent 5.8mm,#ddd 5.8mm,#ddd 6mm);print-color-adjust:exact;-webkit-print-color-adjust:exact}
- #print-root.question-sheet .print-question-dense .question-copy{font-size:8.5pt}
- #print-root.question-sheet .print-question-dense .table-wrap th,#print-root.question-sheet .print-question-dense .table-wrap td{padding:.7mm}
- #print-root.question-sheet .print-footer{display:flex;justify-content:space-between;gap:3mm;margin-top:2mm;font-size:7pt;line-height:1.2;color:#555}
 }

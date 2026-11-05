@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#211b46">
+  <meta name="description" content="Welcome to Bytesize. Choose student practice or the Bytesize Whiteboard teacher workspace.">
+  <title>Welcome to Bytesize | Students &amp; Teachers</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+  <a class="skip-link" href="#choose">Skip to Student and Teacher choices</a>
+  <div class="home-shell">
+    <header class="masthead">
+      <a class="brand" href="./index.html" aria-label="Bytesize home">
+        <img src="assets/bytesize-logo.png" alt="Bytesize" width="2172" height="724">
+      </a>
+      <span class="header-note">A space to learn. A space to teach.</span>
+    </header>
+
+    <main id="choose">
+      <section class="welcome" aria-labelledby="welcome-title">
+        <p class="eyebrow"><span aria-hidden="true"></span> COMPUTER SCIENCE, ONE STEP AT A TIME</p>
+        <h1 id="welcome-title">Welcome to <span>Bytesize.</span></h1>
+        <p class="welcome-copy">Here to learn or here to teach?<br>Choose your space to get started.</p>
+      </section>
+
+      <nav class="choices" aria-label="Choose Student or Teacher">
+        <a class="choice student" href="student/index.html" aria-labelledby="student-title student-action" aria-describedby="student-description">
+          <div class="choice-top">
+            <span class="choice-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="9" width="32" height="24" rx="3"/><path d="M4 39h40M18 39l2-6h8l2 6M21 17l-5 4 5 4M27 17l5 4-5 4"/></svg>
+            </span>
+            <span class="choice-label">LEARN &amp; PRACTISE</span>
+          </div>
+          <h2 id="student-title">Student</h2>
+          <p id="student-description">Build your confidence with interactive practice, instant feedback and printable worksheets.</p>
+          <div class="choice-preview student-preview" aria-hidden="true">
+            <span class="binary">0 1 0 0 0 0 0 1</span>
+            <span class="preview-check"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6"/></svg></span>
+          </div>
+          <span class="choice-action"><span id="student-action">Open Bytesize</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+        </a>
+
+        <a class="choice teacher" href="teacher/index.html" aria-labelledby="teacher-title teacher-action" aria-describedby="teacher-description">
+          <div class="choice-top">
+            <span class="choice-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><rect x="6" y="8" width="36" height="25" rx="3"/><path d="M18 42l6-9 6 9M15 17h18M15 24h11"/></svg>
+            </span>
+            <span class="choice-label">MODEL &amp; INSPIRE</span>
+          </div>
+          <h2 id="teacher-title">Teacher</h2>
+          <p id="teacher-description">Bring ideas to life with worked examples, guided practice and your interactive whiteboard.</p>
+          <div class="choice-preview teacher-preview" aria-hidden="true">
+            <span><i></i>I do</span><span><i></i>We do</span><span><i></i>You do</span>
+          </div>
+          <span class="choice-action"><span id="teacher-action">Open Bytesize Whiteboard</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+        </a>
+      </nav>
+
+      <p class="return-note"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 5 3 9l4 4M3 9h8a5 5 0 0 1 0 10" transform="translate(1 -3)"/></svg>You can return here any time using the Bytesize home link.</p>
+    </main>
+
+    <footer><span>Bytesize · Computer science made approachable.</span><span>Independent of AQA and BBC Bitesize.</span></footer>
+  </div>
+</body>
+</html>

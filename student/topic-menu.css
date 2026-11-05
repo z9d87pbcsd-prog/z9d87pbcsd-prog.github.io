@@ -1,0 +1,19 @@
+/* Navigation only. Original activity and worksheet styles are retained. */
+@media screen{
+.student-topic-menu{background:#28224f;color:#f9f6ff;border:1px solid #64589e;border-radius:10px;padding:23px 26px 0;margin:0 0 27px;min-width:0}
+.student-topic-menu-label{font-family:inherit;font-size:1rem;font-weight:700;letter-spacing:.01em;color:#faf7ff;margin-bottom:12px;line-height:normal}
+.student-topic-menu .student-topic-groups{display:flex;align-items:stretch;flex-wrap:wrap;gap:0 25px;margin:0;padding:0;max-width:100%;border:0;background:none}
+.student-topic-menu .student-topic-groups button{font-family:inherit;font-size:.85rem;font-weight:650;line-height:1.5;background:none;color:#d0c7ee;border:0;border-bottom:2px solid transparent;border-radius:0;padding:10px 0 15px;min-height:45px;flex:0 0 auto;white-space:nowrap;box-shadow:none}
+.student-topic-menu .student-topic-groups button:hover{color:#f9f6ff}
+.student-topic-menu .student-topic-groups button[aria-pressed=true]{color:#c1fb7b;border-bottom-color:#c1fb7b}
+.student-topic-menu .student-activity-menu{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0;padding:13px 0 15px;border:0;background:none}
+.student-topic-menu .student-activity-menu button{flex:0 0 auto;min-height:36px;padding:8px 13px;line-height:1.4;font-size:.77rem;font-weight:600;color:#d0c7ee;background:transparent;border:1px solid transparent;border-radius:6px;box-shadow:none;text-align:left}
+.student-topic-menu .student-activity-menu button:hover{background:#342c69;color:#f9f6ff}
+.student-topic-menu .student-activity-menu button[aria-selected=true]{background:#c1fb7b;color:#251a52;border-color:#c1fb7b}
+.student-topic-menu :is(button,a):focus-visible{outline:3px solid #c1fb7b;outline-offset:3px}
+.student-topic-menu .student-activity-menu[hidden],.student-topic-menu .student-activity-menu button[hidden]{display:none!important}
+.student-topic-menu:has(.student-activity-menu[hidden]){padding-bottom:17px}
+@media(max-width:900px){.student-topic-menu{padding:20px 20px 0}.student-topic-menu .student-topic-groups{gap:0 22px}.student-topic-menu .student-topic-groups button{font-size:.8rem;padding:10px 0 13px}.student-topic-menu .student-activity-menu{padding-top:12px}}
+@media(max-width:550px){.student-topic-menu{padding:17px 16px 0;border-radius:8px;margin-bottom:22px}.student-topic-menu .student-topic-groups{gap:0 18px}.student-topic-menu .student-topic-groups button{font-size:.78rem;min-height:42px;padding:9px 0 12px}.student-topic-menu .student-activity-menu{gap:5px}.student-topic-menu .student-activity-menu button{font-size:.72rem;padding:8px 10px}.student-topic-menu-label{margin-bottom:9px}}
+}
+@media print{.student-topic-menu{display:none!important}}

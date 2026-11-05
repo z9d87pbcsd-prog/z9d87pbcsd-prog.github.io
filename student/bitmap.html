@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Practise pixels, colour depth and bitmap image size for GCSE Computer Science.">
+<title>Bitmap Image Quiz</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23152740'/%3E%3Cpath fill='%232dd4bf' d='M12 12h18v18H12zm22 0h18v18H34zM12 34h18v18H12z'/%3E%3Cpath fill='%23facc15' d='M34 34h18v18H34z'/%3E%3C/svg%3E">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#14233b;background:#f2f6fb;font-size:16px}*{box-sizing:border-box}body{margin:0}header{background:#152740;color:white;padding:18px max(22px,calc((100vw - 1120px)/2));border-bottom:5px solid #2dd4bf}h1{font-size:clamp(1.5rem,3vw,2.1rem);margin:0;font-weight:780;letter-spacing:-.035em}main{max-width:1120px;margin:24px auto;padding:0 22px 45px}.intro{font-size:1.1rem;margin:0 0 20px;line-height:1.5}.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr);gap:22px;align-items:start}.panel{background:white;border:1px solid #d8e2ef;border-radius:16px;box-shadow:0 8px 24px #1b355415;padding:22px}.panel h2{font-size:1.3rem;margin:0 0 12px}.image-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.hint{color:#405572;line-height:1.5;margin:0 0 18px}.pixel-stage{overflow:auto;max-width:100%;background:#e8eef6;border:1px solid #c8d5e4;border-radius:10px;padding:20px;text-align:center}.pixel-frame{display:inline-block;position:relative;line-height:0;padding:0 0 24px 24px}.pixel-frame canvas{display:block;border:2px solid #152740;image-rendering:pixelated;max-width:none}.axis{position:absolute;color:#425772;font-size:14px;line-height:1;font-weight:700}.axis.top{top:-15px;left:50%;transform:translateX(-50%)}.axis.left{top:50%;left:-15px;transform:translateY(-50%) rotate(-90deg);white-space:nowrap}.pixel-frame{margin:18px 0 0 4px}.palette-wrap{margin-top:18px}.palette-title{font-weight:700;margin:0 0 8px}.palette-scroll{overflow-x:auto;max-width:100%}.palette-table{border:1px solid #c8d5e4;border-radius:8px;overflow:hidden}.palette-table{border-collapse:collapse;width:max-content}.palette-table td{padding:0;border-right:1px solid #b9c8da}.palette-table td:last-child{border-right:0}.swatch{display:block;width:28px;height:28px}.binary-hint{margin-top:18px}.binary-hint summary{cursor:pointer;display:inline-block;border:2px solid #9aadc2;border-radius:9px;padding:11px 16px;font-weight:750;color:#152740;background:#fff}.binary-hint summary:hover{background:#eaf2fb}.binary-hint summary:focus-visible{outline:3px solid #25aeb1;outline-offset:3px}.binary-grid-wrap{overflow:auto;max-width:100%;margin-top:12px;background:#e8eef6;padding:12px;border-radius:8px}.binary-grid{display:grid;width:max-content;gap:1px;background:#70829b;border:1px solid #70829b}.binary-cell{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.2;text-align:center;padding:7px 4px;min-width:34px;background:white;color:#14233b}.note{color:#405572;font-size:.96rem;line-height:1.5;margin:16px 0 0}form{display:grid;gap:14px}.question{border:1px solid #d9e3ee;border-radius:12px;padding:15px}.question label{display:block;font-weight:690;line-height:1.4;margin-bottom:10px}.answer-line{display:flex;align-items:center;gap:9px}.question input{width:130px;max-width:65%;border:2px solid #a9bbce;border-radius:8px;padding:10px 12px;font:inherit;font-size:1.1rem;background:#fff;color:#14233b}.question input:focus{outline:3px solid #48c7c5;outline-offset:2px}.unit{font-weight:650;color:#405572}.feedback{margin:10px 0 0;line-height:1.45;font-weight:650}.feedback:empty{display:none}.correct{border-color:#25845d;background:#f0faf4}.correct .feedback{color:#12633e}.incorrect{border-color:#b54949;background:#fff5f4}.incorrect .feedback{color:#8b2929}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}button{font:inherit;font-weight:750;border-radius:9px;padding:12px 17px;cursor:pointer;min-height:46px}button:focus-visible{outline:3px solid #25aeb1;outline-offset:3px}.primary{background:#152740;color:white;border:2px solid #152740}.primary:hover{background:#254260}.secondary{background:#fff;color:#152740;border:2px solid #9aadc2}.secondary:hover{background:#eaf2fb}.summary{min-height:1.5em;font-weight:750;color:#152740;margin:15px 0 0}@media(max-width:820px){.layout{grid-template-columns:1fr}.panel{padding:18px}.pixel-stage{padding:12px}main{margin-top:20px}}@media(max-width:420px){main{padding:0 12px 30px}.pixel-frame{margin-left:0}.intro{font-size:1rem}}
+
+/* Bytesize Circuit Lab theme */
+:root{color:#f6f5ff;background:#181431;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{background:radial-gradient(circle at 85% 0%,#373071 0,#181431 45%,#100d28 100%);background-attachment:fixed;min-height:100vh;color:#f6f5ff}.site-header{background:transparent;border:0;padding:20px max(18px,calc((100vw - 1320px)/2)) 0}.header-inner{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.site-logo{display:block;width:clamp(230px,32vw,365px);height:auto;max-width:100%}.site-header nav{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.site-header nav a,.site-header nav span{display:inline-flex;align-items:center;min-height:42px;padding:9px 17px;border-radius:999px;border:1px solid #695caf;background:#2a2454;color:#e4dfff;text-decoration:none;font-size:.94rem;font-weight:700}.site-header nav a:hover{border-color:#c1fb7b}.site-header nav span{background:#c1fb7b;color:#201844;border-color:#c1fb7b}main{max-width:1360px;margin:18px auto 0;padding:0 26px 70px}.page-intro{background:linear-gradient(120deg,#6249c5,#953cb7);border-radius:19px;padding:22px 28px;margin-bottom:21px}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.14em;color:#c1fb7b;margin:0 0 7px}.page-intro h1{font-size:clamp(1.55rem,3vw,2.15rem);margin:0 0 6px}.intro{color:#f7eaff;margin:0;font-size:1rem}.layout{grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr)}.panel{background:#28224f;border:1px solid #64589e;color:#f9f6ff;box-shadow:0 10px 0 rgba(12,8,41,.22);border-radius:18px}.panel h2{color:#faf7ff}.hint,.note,.unit{color:#d0c7ee}.pixel-stage,.binary-grid-wrap{background:#342c69;border-color:#6559a4}.pixel-frame canvas{border-color:#baff70}.axis{color:#ded5ff}.palette-table,.palette-table td{border-color:#6559a4}.binary-hint summary{background:#302767;color:#f4efff;border-color:#8a78d6}.binary-hint summary:hover{background:#40347d}.binary-hint summary:focus-visible,button:focus-visible,input:focus-visible{outline-color:#c1fb7b}.binary-grid{background:#6559a4;border-color:#6559a4}.binary-cell{background:#faf9ff;color:#241e47}.question{background:#30295c;border-color:#6559a4}.question label{color:#faf7ff}.question input{background:#faf9ff;color:#241e47;border-color:#9b8cda}.feedback{color:#d0c7ee}.correct{background:#204839;border-color:#75d6a5}.correct .feedback{color:#b9f9d4}.incorrect{background:#542d49;border-color:#eb9aaa}.incorrect .feedback{color:#ffd1d9}.primary{background:#c1fb7b;border-color:#c1fb7b;color:#251a52}.primary:hover{background:#d8ffac}.secondary{background:#302767;color:#f4efff;border-color:#8a78d6}.secondary:hover{background:#40347d}.summary{color:#c1fb7b}@media(max-width:820px){.layout{grid-template-columns:1fr}}@media(max-width:680px){.site-header{padding:18px 15px 0}.site-logo{width:min(310px,100%)}main{padding:0 15px 55px}.page-intro{padding:20px}.layout{gap:16px}}
+</style>
+<link rel="stylesheet" href="worked-methods.css">
+<script src="worked-methods.js"></script>
+</head>
+<body>
+<header class="site-header"><div class="header-inner"><a href="index.html#units" aria-label="Bytesize home"><img class="site-logo" src="bytesize-logo.png" alt="Bytesize" width="2172" height="724"></a><nav aria-label="Site navigation"><a href="index.html#units">Number Practice</a><span aria-current="page">Bitmap Images</span></nav></div></header>
+<main>
+<div class="page-intro"><div><p class="eyebrow">IMAGE REPRESENTATION</p><h1>Bitmap image quiz</h1><p class="intro">Look at the image, count its pixels and work out how many bits it uses.</p></div></div>
+<div class="layout">
+<section class="panel" aria-labelledby="image-heading">
+<div class="image-head"><h2 id="image-heading">Your image</h2><button type="button" class="secondary" id="new-image">New Image</button></div>
+<p class="hint">Each coloured square is one pixel. Count across for the width and down for the height.</p>
+<div class="pixel-stage"><div class="pixel-frame"><span class="axis top">Width →</span><span class="axis left">Height →</span><canvas id="bitmap" role="img" aria-label="Generated bitmap image with a visible grid"></canvas></div></div>
+<div class="palette-wrap"><p class="palette-title" id="palette-title">Colours in this image</p><div class="palette-scroll" role="region" aria-label="Colours shown in this image" tabindex="0"><table class="palette-table" aria-labelledby="palette-title"><tbody><tr id="palette-row"></tr></tbody></table></div></div><details class="binary-hint" id="binary-hint"><summary>Show binary hint</summary><p class="note">Each group gives the binary value for one pixel in the same position as the image above. The digits per group show the colour depth.</p><div class="binary-grid-wrap"><div class="binary-grid" id="binary-grid"></div></div></details>
+</section>
+<section class="panel" aria-labelledby="questions-heading">
+<h2 id="questions-heading">Your answers</h2>
+<form id="quiz" novalidate>
+<div class="question" id="q-pixels"><label for="pixels">1. How many pixels are there in this image?</label><div class="answer-line"><input id="pixels" type="number" inputmode="numeric" min="0" step="1" required><span class="unit">pixels</span></div><p class="feedback" aria-live="polite"></p></div>
+<div class="question" id="q-depth"><label for="depth">2. What is the minimum colour depth needed for this complete palette?</label><div class="answer-line"><input id="depth" type="number" inputmode="numeric" min="0" step="1" required><span class="unit">bits per pixel</span></div><p class="feedback" aria-live="polite"></p></div>
+<div class="question" id="q-total"><label for="total">3. Calculate the total number of bits used to represent this image.</label><div class="answer-line"><input id="total" type="number" inputmode="numeric" min="0" step="1" required><span class="unit">bits</span></div><p class="feedback" aria-live="polite"></p></div>
+<div class="question" id="q-bytes"><label for="bytes">4. State the file size in bytes.</label><div class="answer-line"><input id="bytes" type="number" inputmode="numeric" min="0" step="1" required><span class="unit">bytes</span></div><p class="feedback" aria-live="polite"></p></div>
+<div class="actions"><button class="primary" type="submit">Check Answers</button></div><p class="summary" id="summary" aria-live="polite"></p>
+</form>
+</section>
+</div>
+</main>
+<script>
+(()=>{'use strict';
+const canvas=document.getElementById('bitmap'),ctx=canvas.getContext('2d'),form=document.getElementById('quiz');
+let image,attempts;
+const random=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+const colours=['#142740','#f7c948','#27b6ab','#ed6a5a','#7085e5','#f49b49','#60b8e9','#b47be5','#a8c957','#e96f9e','#755d49','#8ed2b4','#bac3d4','#e5b3d2','#4178aa','#f1d99a'];
+function palette(n){if(n<=16)return colours.slice(0,n);return Array.from({length:n},(_,i)=>`hsl(${Math.round(i*360/n)} 70% ${i%3===0?37:55}%)`)}
+function newImage(){
+ let w,h,d;do{w=random(8,16);h=random(8,16);d=random(1,8)}while((w*h*d)%8!==0||w*h<2**d);
+ const count=2**d,p=palette(count),size=24,used=new Set(),indices=[];
+ image={w,h,d};canvas.width=w*size;canvas.height=h*size;
+ canvas.setAttribute('aria-label',`Bitmap image with ${w} columns and ${h} rows of pixels, with all palette colours shown`);
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ // Include every colour when the image has enough pixels for the full palette.
+ const samples=Array.from({length:w*h},(_,i)=>i<count?i:random(0,count-1));
+ for(let i=samples.length-1;i>0;i--){const j=random(0,i);[samples[i],samples[j]]=[samples[j],samples[i]]}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const index=samples[y*w+x];indices.push(index);used.add(index);ctx.fillStyle=p[index];
+  ctx.fillRect(x*size,y*size,size,size);ctx.strokeStyle='rgba(12,28,50,.38)';
+  ctx.lineWidth=1;ctx.strokeRect(x*size+.5,y*size+.5,size,size)
+ }
+ const row=document.getElementById('palette-row');row.replaceChildren();
+ for(const index of [...used].sort((a,b)=>a-b)){
+  const cell=document.createElement('td'),swatch=document.createElement('span');swatch.className='swatch';
+  swatch.style.backgroundColor=p[index];swatch.setAttribute('aria-label',`Colour ${index+1}`);
+  cell.append(swatch);row.append(cell)
+ }
+ document.getElementById('palette-title').textContent=`Colours in this image (${used.size} shown)`;
+ const binary=document.getElementById('binary-grid');binary.replaceChildren();binary.style.gridTemplateColumns=`repeat(${w}, max-content)`;
+ for(const index of indices){const cell=document.createElement('span');cell.className='binary-cell';cell.textContent=index.toString(2).padStart(d,'0');binary.append(cell)}
+ document.getElementById('binary-hint').open=false;
+ form.reset();attempts={pixels:0,depth:0,total:0,bytes:0};document.getElementById('summary').textContent='';
+ for(const block of document.querySelectorAll('.question')){block.classList.remove('correct','incorrect');block.querySelector('.feedback').textContent=''}
+}
+function mark(id,expected,working){
+ const input=document.getElementById(id),block=input.closest('.question'),feedback=block.querySelector('.feedback');
+ if(input.value.trim()===''){block.classList.remove('correct','incorrect');feedback.textContent='';return null}
+ const ok=Number(input.value)===expected;block.classList.toggle('correct',ok);block.classList.toggle('incorrect',!ok);
+ if(ok){feedback.textContent='Correct!'}else{
+  attempts[id]++;feedback.textContent='Not quite. Use the worked method and try again.'
+ }return ok
+}
+form.addEventListener('submit',e=>{
+ e.preventDefault();const{w,h,d}=image,bits=w*h*d;
+ const results=[mark('pixels',w*h,`${w} × ${h} = ${w*h} pixels.`),mark('depth',d,`Each pixel uses ${d} binary digits, so its colour depth is ${d} bits.`),mark('total',bits,`${w} × ${h} × ${d} = ${bits} bits.`),mark('bytes',bits/8,`${bits} bits ÷ 8 = ${bits/8} bytes.`)];
+ const entered=results.filter(v=>v!==null);document.getElementById('summary').textContent=entered.length?`${entered.filter(Boolean).length} out of ${entered.length} attempted correct.`:''
+});
+document.getElementById('new-image').addEventListener('click',newImage);newImage();
+})();
+</script>
+</body>
+</html>

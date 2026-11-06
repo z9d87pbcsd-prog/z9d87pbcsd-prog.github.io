@@ -1,6 +1,6 @@
 "use strict";
 (() => {
-  // ../bytesize-hub/dist/teacher/word-bank.js
+  // dist/teacher/word-bank.js
   var words = (text) => [...new Set(text.trim().split(/\s+/))];
   var COMPUTING_WORDS = Object.freeze(words(`
  alu array ascii base bases binary bit bits bubble byte bytes cache clock cloud
@@ -121,7 +121,7 @@
     return { word, wordCategory: COMPUTING_WORDS.includes(word) ? "computing" : "common" };
   }
 
-  // ../bytesize-hub/dist/teacher/bank.js
+  // dist/teacher/bank.js
   var SOURCE = "https://www.aqa.org.uk/subjects/computer-science/gcse/computer-science-8525/specification/subject-content/fundamentals-of-data-representation";
   var TOPICS = [
     ["bases", "3.3.1", "Number bases", "01", "What a bit pattern means", "#7260cf"],
@@ -444,7 +444,7 @@
     return { correct, empty: false, message: correct ? "Correct. Well done." : f.kind === "hex" ? "Check both hexadecimal digits." : f.kind === "binary" || f.kind === "addition" ? "Check the eight bits and any zero placeholders." : "Check your method and try again." };
   }
 
-  // ../bytesize-hub/dist/teacher/worksheet.js
+  // dist/teacher/worksheet.js
   function worksheetQuestionKey(question) {
     const clean = (text) => String(text || "").replace(/\s+/g, " ").trim();
     if (Number.isFinite(question.meta?.n)) return `${question.skill}:${question.meta.n}`;
@@ -493,7 +493,7 @@
     return { questions, requested, notice: questions.length < requested ? `Created ${questions.length} unique questions out of ${requested} requested. Add more skills or choose fewer questions to make a full worksheet.` : "" };
   }
 
-  // ../bytesize-hub/dist/teacher/app.js
+  // dist/teacher/app.js
   var $ = (s) => document.querySelector(s);
   var $$ = (s) => [...document.querySelectorAll(s)];
   var iconPaths = { minus: '<path d="M5 12h14"/>', grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>', board: '<rect x="3" y="3" width="18" height="13" rx="2"/><path d="M8 21l4-5 4 5M7 8h10M7 11h6"/>', recall: '<path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/>', paper: '<path d="M7 3h9l4 4v14H4V3zM15 3v5h5M8 12h8M8 16h6"/>', pen: '<path d="M4 20l4-1 12-12-3-3L5 16zM14 7l3 3M4 20l1-4"/>', folder: '<path d="M3 7V4h7l3 3h8v13H3zM3 9h18"/>', help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1.5 1-1.5 1-1.5 3M12 17h.01"/>', arrow: '<path d="M5 12h14M14 7l5 5-5 5"/>', search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M16 16l5 5"/>', plus: '<path d="M12 4v16M4 12h16"/>', play: '<path d="M8 4l12 8-12 8z"/>', refresh: '<path d="M20 7v5h-5M4 17v-5h5M5 8a8 8 0 0 1 13-3l2 2M4 17l2 2a8 8 0 0 0 13-3"/>', eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', focus: '<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/>', close: '<path d="M5 5l14 14M19 5L5 19"/>', timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6M12 2v3M18 5l2-2"/>', print: '<path d="M7 8V3h10v5M7 17H3V9h18v8h-4M7 14h10v7H7zM17 11h1"/>', link: '<path d="M9 15l6-6M8 17l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M12 17a4 4 0 0 0 6 0l5-5a4 4 0 0 0-6-6l-1 1"/>', notes: '<path d="M4 3h16v18H4zM8 7h8M8 11h8M8 15h5"/>', pointer: '<path d="M5 3l14 9-7 1-3 7z"/>', eraser: '<path d="M3 15L14 4l7 7-10 10H8zM8 10l7 7M11 21h10"/>', undo: '<path d="M3 5v6h6M3 11l4-4a8 8 0 1 1 0 12"/>', trash: '<path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/>', download: '<path d="M12 3v12M7 10l5 5 5-5M4 16v5h16v-5"/>', upload: '<path d="M12 16V4M7 9l5-5 5 5M4 16v5h16v-5"/>', up: '<path d="M5 15l7-7 7 7"/>', down: '<path d="M5 9l7 7 7-7"/>', check: '<path d="M4 12l5 5L20 6"/>', text: '<path d="M4 4h16M12 4v17M8 21h8"/>', line: '<path d="M4 20L20 4M3 19l2 2M19 3l2 2"/>', highlighter: '<path d="M5 15L15 5l5 5-10 10zM5 15l-2 5h6M13 7l5 5"/>', menu: '<path d="M3 6h18M3 12h18M3 18h18"/>', moon: '<path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11z"/>', back: '<path d="M19 12H5M10 7l-5 5 5 5"/>', save: '<path d="M4 3h14l3 3v15H3V3zM7 3v7h10V3M7 21v-7h10v7"/>' };
@@ -1098,10 +1098,14 @@
     const responses = q2.fields.some((f) => f.kind === "bitmap") ? bitmapFigure("0".repeat(q2.meta.data.length), q2.meta.w) : q2.fields.length ? `<div class="print-response-fields">${q2.fields.map((f) => `<div class="print-response-line"><span>${esc(f.label)}:</span><span class="print-response-blank"></span></div>`).join("")}</div>` : "";
     return `<div class="print-question-cell" data-print-question="${index + 1}"><article class="print-question ${q2.kind === "written" ? "written" : ""} ${q2.skill === "huffman-size" ? "print-question-dense" : ""}"><div class="print-question-content"><h2 class="print-question-title">${index + 1}. ${esc(q2.title)} <span>${esc(q2.ref)}</span></h2><div class="question-copy">${prompt}</div><div class="figure">${figure}</div>${answers ? modelHTML(q2) + `<ol class="step-list">${q2.steps.map((s) => `<li>${s.body}</li>`).join("")}</ol>` : responses}</div>${answers ? "" : '<div class="print-working-space" aria-label="Space for your working"></div>'}</article></div>`;
   }
-  function questionPrintPages(qs, title, { showTitle = true, answers = false } = {}) {
-    const columns = qs.length <= 2 ? qs.length : qs.length <= 4 ? 2 : qs.length <= 12 ? 3 : 4, rows = Math.ceil(qs.length / columns);
-    const cells = Array.from({ length: columns * rows }, (_, i) => qs[i] ? printQuestionCell(qs[i], i, answers) : '<div class="print-question-cell print-empty-cell" aria-hidden="true"></div>');
-    return `<section class="print-question-page" aria-label="${answers ? "Teacher answers" : "Pupil questions"} · single A4 landscape sheet"><header class="print-header">${showTitle ? `<h1>${esc(title)}</h1>` : ""}<div class="print-page-details"><p>Name: ____________________________________</p><p>Class: ______________</p><p>Date: ______________</p></div></header><div class="print-question-grid" style="--print-columns:${columns};--print-rows:${rows}" aria-label="Questions 1 to ${qs.length}">${cells.join("")}</div></section>`;
+  function questionPrintPages(qs, title, { showTitle = true, answers = false, perPage = qs.length } = {}) {
+    const pageSize = Math.max(1, Math.trunc(perPage)), pageCount = Math.ceil(qs.length / pageSize);
+    const columns = pageSize <= 2 ? pageSize : pageSize <= 4 ? 2 : pageSize <= 12 ? 3 : 4, rows = Math.ceil(pageSize / columns);
+    return Array.from({ length: pageCount }, (_, page) => {
+      const offset = page * pageSize;
+      const cells = Array.from({ length: columns * rows }, (_2, i) => qs[offset + i] && i < pageSize ? printQuestionCell(qs[offset + i], offset + i, answers) : '<div class="print-question-cell print-empty-cell" aria-hidden="true"></div>');
+      return `<section class="print-question-page" aria-label="${answers ? "Teacher answers" : "Pupil questions"} · A4 landscape sheet ${page + 1} of ${pageCount}"><header class="print-header">${showTitle ? `<h1>${esc(title)}</h1>` : ""}<div class="print-page-details"><p>Name: ____________________________________</p><p>Class: ______________</p><p>Date: ______________</p></div></header><div class="print-question-grid" style="--print-columns:${columns};--print-rows:${rows}" aria-label="Questions ${offset + 1} to ${Math.min(offset + pageSize, qs.length)}">${cells.join("")}</div></section>`;
+    }).join("");
   }
   function fitPrintQuestions(root) {
     if (!root?.querySelectorAll) return;
@@ -1971,7 +1975,7 @@
       return;
     }
     if (a === "print-worksheet" || a === "print-answers") {
-      printSet(state.worksheetQs, a === "print-answers", state.worksheetTitle);
+      printSet(state.worksheetQs, a === "print-answers", state.worksheetTitle, { perPage: 6 });
       return;
     }
     if (a === "queue-up" || a === "queue-down") {

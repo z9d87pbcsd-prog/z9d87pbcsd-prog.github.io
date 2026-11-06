@@ -272,10 +272,14 @@ function printQuestionCell(q,index,answers=false){
  const responses=q.fields.some(f=>f.kind==='bitmap')?bitmapFigure('0'.repeat(q.meta.data.length),q.meta.w):q.fields.length?`<div class="print-response-fields">${q.fields.map(f=>`<div class="print-response-line"><span>${esc(f.label)}:</span><span class="print-response-blank"></span></div>`).join('')}</div>`:'';
  return `<div class="print-question-cell" data-print-question="${index+1}"><article class="print-question ${q.kind==='written'?'written':''} ${q.skill==='huffman-size'?'print-question-dense':''}"><div class="print-question-content"><h2 class="print-question-title">${index+1}. ${esc(q.title)} <span>${esc(q.ref)}</span></h2><div class="question-copy">${prompt}</div><div class="figure">${figure}</div>${answers?modelHTML(q)+`<ol class="step-list">${q.steps.map(s=>`<li>${s.body}</li>`).join('')}</ol>`:responses}</div>${answers?'':'<div class="print-working-space" aria-label="Space for your working"></div>'}</article></div>`;
 }
-function questionPrintPages(qs,title,{showTitle=true,answers=false}={}){
- const columns=qs.length<=2?qs.length:qs.length<=4?2:qs.length<=12?3:4,rows=Math.ceil(qs.length/columns);
- const cells=Array.from({length:columns*rows},(_,i)=>qs[i]?printQuestionCell(qs[i],i,answers):'<div class="print-question-cell print-empty-cell" aria-hidden="true"></div>');
- return `<section class="print-question-page" aria-label="${answers?'Teacher answers':'Pupil questions'} · single A4 landscape sheet"><header class="print-header">${showTitle?`<h1>${esc(title)}</h1>`:''}<div class="print-page-details"><p>Name: ____________________________________</p><p>Class: ______________</p><p>Date: ______________</p></div></header><div class="print-question-grid" style="--print-columns:${columns};--print-rows:${rows}" aria-label="Questions 1 to ${qs.length}">${cells.join('')}</div></section>`;
+function questionPrintPages(qs,title,{showTitle=true,answers=false,perPage=qs.length}={}){
+ const pageSize=Math.max(1,Math.trunc(perPage)),pageCount=Math.ceil(qs.length/pageSize);
+ const columns=pageSize<=2?pageSize:pageSize<=4?2:pageSize<=12?3:4,rows=Math.ceil(pageSize/columns);
+ return Array.from({length:pageCount},(_,page)=>{
+  const offset=page*pageSize;
+  const cells=Array.from({length:columns*rows},(_,i)=>qs[offset+i]&&i<pageSize?printQuestionCell(qs[offset+i],offset+i,answers):'<div class="print-question-cell print-empty-cell" aria-hidden="true"></div>');
+  return `<section class="print-question-page" aria-label="${answers?'Teacher answers':'Pupil questions'} · A4 landscape sheet ${page+1} of ${pageCount}"><header class="print-header">${showTitle?`<h1>${esc(title)}</h1>`:''}<div class="print-page-details"><p>Name: ____________________________________</p><p>Class: ______________</p><p>Date: ______________</p></div></header><div class="print-question-grid" style="--print-columns:${columns};--print-rows:${rows}" aria-label="Questions ${offset+1} to ${Math.min(offset+pageSize,qs.length)}">${cells.join('')}</div></section>`;
+ }).join('');
 }
 function fitPrintQuestions(root){
  if(!root?.querySelectorAll)return;
@@ -493,7 +497,7 @@ document.addEventListener('click',async e=>{const boardRle=e.target.closest('[da
  if(a==='skill-worksheet'){state.worksheetIds=[id];state.worksheetQs=[];state.worksheetNotice='';state.worksheetTitle=SKILLS.find(x=>x.id===id).title;route('worksheets');return;}
  if(a==='ws-all'||a==='ws-none'){state.worksheetIds=a==='ws-all'?SKILLS.map(s=>s.id):[];render();return;}
  if(a==='generate-worksheet'){if(!state.worksheetIds.length){toast('Choose at least one skill.');return;}const seed=freshSeed();state.worksheetSeed=seed===state.worksheetSeed?(seed+1)>>>0:seed;const result=makeWorksheet(state.worksheetIds,state.worksheetCount,state.worksheetSeed);state.worksheetQs=result.questions;state.worksheetNotice=result.notice;render();return;}
- if(a==='print-worksheet'||a==='print-answers'){printSet(state.worksheetQs,a==='print-answers',state.worksheetTitle);return;}
+ if(a==='print-worksheet'||a==='print-answers'){printSet(state.worksheetQs,a==='print-answers',state.worksheetTitle,{perPage:6});return;}
  if(a==='queue-up'||a==='queue-down'){const j=a==='queue-up'?idx-1:idx+1;if(j>=0&&j<prefs.queue.length)[prefs.queue[idx],prefs.queue[j]]=[prefs.queue[j],prefs.queue[idx]];persist();render();return;}
  if(a==='queue-remove'){prefs.queue.splice(idx,1);persist();render();return;}
  if(a==='save-lesson'){showModal('Save this lesson',`<p>Keep this ${prefs.queue.length}-skill sequence with a fixed starting question set.</p><form id="save-lesson-form"><div class="field"><label for="lesson-name">Lesson name</label><input type="text" id="lesson-name" maxlength="100" required placeholder="e.g. Year 10 · Binary consolidation"></div><button type="submit" class="btn primary">${ic('save')} Save lesson</button></form>`);return;}

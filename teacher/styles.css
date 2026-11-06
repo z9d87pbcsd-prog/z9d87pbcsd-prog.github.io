@@ -162,4 +162,6 @@ body.six-question-mode{overflow:hidden;background:#f1eef7}
  @page bytesizeAnswers{size:A4 landscape;margin:10mm}
  #print-root.question-sheet{page:bytesizeQuestions}
  #print-root.answer-sheet{page:bytesizeAnswers}
+ #print-root .print-question-page{break-after:page;page-break-after:always}
+ #print-root .print-question-page:last-child{break-after:auto;page-break-after:auto}
 }

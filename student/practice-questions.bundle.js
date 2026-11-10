@@ -1,6 +1,5 @@
-"use strict";
 (() => {
-  // ../bytesize-hub/dist/student/worked-methods.js
+  // dist/student/worked-methods.js
   (function(root) {
     "use strict";
     if (root.BytesizeMethods) return;
@@ -56,7 +55,7 @@
     add("sound-rate", "Interpret a sampling rate", ["Identify the quantity measured by the rate and the time interval used.", "Distinguish a count per second from bits per measurement and total recording duration.", "Apply that interpretation to the rate in the question."], "Separate example: 6 measurements each second for 3 seconds gives 6 × 3 = 18 measurements.");
     add("sound-resolution", "Interpret sample resolution", ["Identify what a single stored sample represents.", "Distinguish bits allocated to that one sample from how frequently samples are taken.", "Relate the available bit patterns to the levels that can be represented."], "Separate example: 3 binary positions provide 2³ = 8 different stored patterns.");
     add("sound-count", "Count samples in a recording", ["Write the sampling rate in samples per second.", "Convert the duration into seconds if needed.", "Multiply samples per second by seconds; the time units cancel."], "Separate example: 6,000 samples per second × 2 seconds = 12,000 samples.");
-    add("sound-size", "Calculate sound-data file size", ["For uncompressed mono sound, multiply rate × bits per sample × duration in seconds.", "Keep the initial product in bits. Convert afterwards if the question asks for bytes or decimal kB.", "Use ÷8 for bytes and a further ÷1,000 for kB. Include extra channels or overheads only when specified."], "Separate example: 6,000 × 10 × 2 = 120,000 bits; ÷8 = 15,000 bytes; ÷1,000 = 15 kB.");
+    add("sound-size", "Calculate sound-data file size", ["If the duration is in minutes, multiply it by 60 to get seconds.", "For uncompressed mono sound, multiply rate × bits per sample × duration in seconds. The result is in bits.", "If the question asks for bytes, divide by 8."], "Separate example: 6,000 × 10 × 2 = 120,000 bits; ÷8 = 15,000 bytes.");
     add("sound-change", "Calculate a change in sound size", ["Write the original rate × resolution × duration product.", "Substitute the new values, leaving unchanged settings alone.", "Calculate the new size. If asked for a ratio, divide new size by original size and explain which factors changed."], "Separate example: 6,000 × 10 × 2 = 120,000 bits. With rate 9,000 and the other values unchanged, the size is 180,000 bits and the ratio is 1.5.");
     add("sound-duration", "Find a recording’s duration", ["Start with size in bits = rate × resolution × duration for the stated mono format.", "Rearrange to duration = size in bits ÷ (rate × resolution).", "Convert any byte-based file size to bits before substituting, then check the result is in seconds."], "Separate example: 120,000 ÷ (6,000 × 10) = 2 seconds.");
     add("sound-rate-find", "Find a sampling rate", ["Start with size in bits = rate × resolution × duration for the stated mono format.", "Rearrange to rate = size in bits ÷ (resolution × duration).", "Keep duration in seconds and report the resulting rate in Hz."], "Separate example: 120,000 ÷ (10 × 2) = 6,000 Hz.");
@@ -111,7 +110,7 @@
     }
   })(globalThis);
 
-  // ../bytesize-hub/dist/teacher/word-bank.js
+  // dist/teacher/word-bank.js
   var words = (text) => [...new Set(text.trim().split(/\s+/))];
   var COMPUTING_WORDS = Object.freeze(words(`
  alu array ascii base bases binary bit bits bubble byte bytes cache clock cloud
@@ -232,7 +231,7 @@
     return { word, wordCategory: COMPUTING_WORDS.includes(word) ? "computing" : "common" };
   }
 
-  // ../bytesize-hub/dist/teacher/bank.js
+  // dist/teacher/bank.js
   var TOPICS = [
     ["bases", "3.3.1", "Number bases", "01", "What a bit pattern means", "#7260cf"],
     ["conversions", "3.3.2", "Base conversions", "⇄", "Binary, decimal and hexadecimal", "#536acb"],
@@ -489,10 +488,11 @@
       const rate = pick([8e3, 11025, 22050, 44100, 48e3]), res = pick([8, 12, 16]);
       r = written(`A digital recording uses a sampling rate of <strong>${fmt(rate)} Hz</strong> and sample resolution of <strong>${res} bits</strong>. Explain both settings and what a sample measures.`, [`The sampling rate means ${fmt(rate)} samples are taken each second.`, `Each sample uses ${res} bits to represent its measured amplitude.`, "A sample measures the amplitude of the analogue signal at a particular point in time."], "Distinguish how often a measurement is taken from how many bits store it.", samplingFigure(level === 1 ? 6 : 11));
     } else if (["sound-size", "sound-change", "sound-missing"].includes(skillId)) {
-      const rate = pick(level === 1 ? [1e3, 2e3, 8e3] : [8e3, 16e3, 22050, 44100]), res = pick([8, 16]), secs = pick([2, 5, 10, 20, 30, 60]), size = rate * res * secs;
+      const rate = pick(level === 1 ? [1e3, 2e3, 8e3] : [8e3, 16e3, 22050, 44100]), res = pick([8, 16]), secs = pick(skillId === "sound-size" && level === 3 ? [60, 120, 180, 240] : [2, 5, 10, 20, 30, 60]), size = rate * res * secs;
       if (skillId === "sound-size") {
-        const unit = level === 1 ? "bits" : level === 2 ? "bytes" : "kB", ans = unit === "bits" ? size : unit === "bytes" ? size / 8 : size / 8e3;
-        r = q(`An uncompressed sound recording lasts <strong>${secs === 60 ? "1 minute" : secs + " seconds"}</strong>. Its sampling rate is <strong>${fmt(rate)} Hz</strong> and sample resolution is <strong>${res} bits</strong>. Calculate its size in <strong>${unit}</strong>. Use one stream of samples and ignore metadata.`, [field(`File size (${unit})`, ans)], [`Use ${secs} seconds. Size in bits = sampling rate × sample resolution × duration.`, `${fmt(rate)} × ${res} × ${secs} = ${fmt(size)} bits.`, unit === "bits" ? `Answer: ${fmt(size)} bits.` : unit === "bytes" ? `${fmt(size)} ÷ 8 = ${fmt(ans)} bytes.` : `${fmt(size)} ÷ 8 ÷ 1,000 = ${fmt(ans)} kB.`], "The rate is already samples per second; multiply it by bits per sample and seconds.", "", { rate, res, secs, size });
+        const bytes = level !== 1, unit = bytes ? "bytes" : "bits", ans = bytes ? size / 8 : size;
+        const inMinutes = secs % 60 === 0, duration = inMinutes ? `${secs / 60} minute${secs === 60 ? "" : "s"}` : `${secs} seconds`;
+        r = q(`An uncompressed sound recording lasts <strong>${duration}</strong>. Its sampling rate is <strong>${fmt(rate)} Hz</strong> and sample resolution is <strong>${res} bits</strong>. Calculate its size in <strong>${unit}</strong>. Use one stream of samples and ignore metadata.`, [field(`File size (${unit})`, ans)], [`${inMinutes ? `${duration} = ${secs} seconds. ` : ""}Size in bits = sampling rate × sample resolution × duration in seconds.`, `${fmt(rate)} × ${res} × ${secs} = ${fmt(size)} bits.`, bytes ? `${fmt(size)} ÷ 8 = ${fmt(ans)} bytes.` : `Answer: ${fmt(size)} bits.`], "The rate is already samples per second; multiply it by bits per sample and seconds.", "", { rate, res, secs, size });
       } else if (skillId === "sound-missing") {
         const missing = pick(["rate", "resolution", "duration"]), ans = missing === "rate" ? rate : missing === "resolution" ? res : secs;
         r = q(`A raw sound file contains <strong>${fmt(size)} bits</strong>. ${missing === "rate" ? `It lasts ${secs} seconds and uses ${res} bits per sample. Find its sampling rate.` : missing === "resolution" ? `It lasts ${secs} seconds and uses a sampling rate of ${fmt(rate)} Hz. Find its sample resolution.` : `It uses ${fmt(rate)} Hz and ${res} bits per sample. Find its duration.`} Ignore metadata; use one stream of samples.`, [field(missing === "rate" ? "Sampling rate (Hz)" : missing === "resolution" ? "Resolution (bits per sample)" : "Duration (seconds)", ans)], [`File size (bits) = rate × resolution × seconds.`, `Divide ${fmt(size)} by ${missing === "rate" ? `${res} × ${secs}` : missing === "resolution" ? `${fmt(rate)} × ${secs}` : `${fmt(rate)} × ${res}`}.`, `The missing ${missing} is ${fmt(ans)}.`], "Divide by the two known factors.");
@@ -544,7 +544,7 @@
     return { correct, empty: false, message: correct ? "Correct. Well done." : f.kind === "hex" ? "Check both hexadecimal digits." : f.kind === "binary" || f.kind === "addition" ? "Check the eight bits and any zero placeholders." : "Check your method and try again." };
   }
 
-  // ../bytesize-hub/dist/student/practice-questions.js
+  // dist/student/practice-questions.js
   var GROUPS = {
     characters: { title: "Character encoding practice", prefix: "characterpractice", skills: SKILLS.filter((s) => s.topic === "characters") },
     rle: { title: "Run length encoding practice", prefix: "rle", skills: SKILLS.filter((s) => ["rle-encode", "rle-decode"].includes(s.id)) }

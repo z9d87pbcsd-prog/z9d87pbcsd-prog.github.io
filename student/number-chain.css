@@ -1,8 +1,4 @@
-#number-chain-section { max-width:1040px; margin:0 auto; }
-#number-chain-section .lesson { margin-bottom:20px; }
-#number-chain-section .lesson { padding:18px 24px; }
-#number-chain-section .lesson p { max-width:none; }
-#number-chain-section .lesson h2 { font-size:1.5rem; }
+#number-chain-game { max-width:1040px; margin:0 auto; }
 .chain-controls { display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin:0 0 18px; }
 .chain-kicker { color:#c1fb7b; font-size:.76rem; font-weight:800; letter-spacing:.12em; }
 .chain-controls h3 { margin:6px 0; font-size:1.35rem; }

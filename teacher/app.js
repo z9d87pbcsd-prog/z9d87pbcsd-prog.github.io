@@ -44,11 +44,20 @@ function makeModelQuestions(){const signatures=new Set();return [0,1,2].map(i=>{
 function toast(s){const el=$('#toast');el.textContent=s;el.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('show'),3300);}
 function route(view,params={}){const p=new URLSearchParams(params);location.hash=view+(p.size?'?'+p.toString():'');}
 function teachRoute(id=state.skill,level=0,seed=freshSeed(),rounds=[0,0,0]){route('teach',{skill:id,seed,r:rounds.join(',')});}
-function readRoute(){const raw=location.hash.slice(1)||'library',[v,query='']=raw.split('?'),p=new URLSearchParams(query);state.view=['library','teach','practice','worksheets','blank','lessons'].includes(v)?v:'library';if(state.sixScreen&&state.view!=='practice')exitSixQuestionScreen();if(state.view==='teach'){
+function readRoute(){const raw=location.hash.slice(1)||'library',[v,query='']=raw.split('?'),p=new URLSearchParams(query);let invalidSet=false;state.view=['library','teach','practice','worksheets','blank','lessons'].includes(v)?v:'library';if(state.sixScreen&&state.view!=='practice')exitSixQuestionScreen();if(state.view==='teach'){
  state.skill=validSkill(p.get('skill'))?p.get('skill'):state.skill;state.seed=p.has('seed')?Number(p.get('seed'))>>>0:state.seed;state.level=[1,2,3].includes(Number(p.get('level')))?Number(p.get('level')):1+(state.seed%3);
  state.rounds=(p.get('r')||'0,0,0').split(',').slice(0,3).map(x=>Math.max(0,Math.min(999,parseInt(x)||0)));while(state.rounds.length<3)state.rounds.push(0);prefs.lastSkill=state.skill;persist();modelQs=makeModelQuestions();
- }if(state.view==='practice'){state.practiceSkill=validSkill(p.get('skill'))?p.get('skill'):null;if(!state.practiceQs.length||p.get('skill')!==state.practiceQs[0]?.sourceSkill){generatePractice();}}
- render();window.scrollTo(0,0);
+ }if(state.view==='practice'){
+  if(p.has('set'))invalidSet=!restorePracticeSet(p);
+  if(!p.has('set')||invalidSet){
+   state.practiceSkill=validSkill(p.get('skill'))?p.get('skill'):null;
+   if(invalidSet){
+    state.practiceIds=SKILLS.map(s=>s.id);state.practiceQs=[];state.sixPage=0;refreshPracticeSeed();
+   }
+   if(!state.practiceQs.length||state.practiceSkill!==state.practiceQs[0]?.sourceSkill)generatePractice();
+  }
+ }
+ render();if(invalidSet)toast('This question set link is invalid or unsupported. A fresh set is shown instead.');window.scrollTo(0,0);
 }
 window.addEventListener('hashchange',readRoute);
 function render(){document.documentElement.style.setProperty('--qscale',prefs.font);document.body.classList.toggle('presentation',state.projector);document.body.classList.toggle('six-question-mode',state.sixScreen&&state.view==='practice');
@@ -97,6 +106,44 @@ function practiceTypeOptions(){
  return `<details class="practice-type-options" id="practice-types" ${state.practiceOptionsOpen?'open':''}><summary><span>Choose specific question types</span><span class="practice-types-count" id="practice-types-count">${state.practiceIds.length} selected</span></summary><p class="practice-types-help">Pick individual question types across any topics. Select Generate fresh set to apply your choices.</p><div class="practice-type-groups">${TOPICS.map(t=>{const {skills,count}=practiceTopicSelection(t.id);return `<fieldset class="practice-type-group"><legend>${t.title} <span data-practice-topic-count="${t.id}">${count}/${skills.length}</span></legend><div class="buttons practice-type-actions">${btn('Select all','practice-type-topic-all','','small ghost',`data-topic="${t.id}" aria-label="Select all ${t.title} question types"`)}${btn('Clear all','practice-type-topic-none','','small ghost',`data-topic="${t.id}" aria-label="Clear all ${t.title} question types"`)}</div><div class="practice-type-list">${skills.map(s=>`<label title="${esc(s.desc)}"><input type="checkbox" data-practice-type="${s.id}" ${state.practiceIds.includes(s.id)?'checked':''}><span>${s.title}</span></label>`).join('')}</div></fieldset>`;}).join('')}</div></details>`;
 }
 function generatePractice(){const ids=practiceQuestionIds();if(!ids.length){toast('Choose at least one question type.');return false;}state.practiceQs=buildSet(ids,state.practiceCount,0,state.practiceSeed);state.practiceQs.forEach(q=>q.sourceSkill=state.practiceSkill);return true;}
+const practiceCounts=[4,6,10,12,16,20];
+function practiceSetUrl(){
+ const url=new URL(location.href),params=new URLSearchParams();
+ // Capture each displayed question, since individual refreshes can change its skill and seed.
+ params.set('set','1~'+state.practiceQs.map(q=>`${q.skill}.${q.level}.${q.seed.toString(36)}`).join('~'));
+ if(state.practiceSkill)params.set('skill',state.practiceSkill);
+ else if(state.practiceIds.length!==SKILLS.length)params.set('types',state.practiceIds.join('~'));
+ url.hash='practice?'+params.toString();return url.href;
+}
+function restorePracticeSet(params){
+ const encoded=params.get('set'),types=params.get('types'),skill=params.get('skill');
+ if(!encoded||encoded.length>1400||(types?.length??0)>1400||(skill!==null&&!validSkill(skill)))return false;
+ const [version,...entries]=encoded.split('~');
+ if(version!=='1'||!practiceCounts.includes(entries.length)||new Set(entries).size!==entries.length)return false;
+ const selected=types===null?SKILLS.map(s=>s.id):types?types.split('~'):[];
+ if(new Set(selected).size!==selected.length||selected.some(id=>!validSkill(id)))return false;
+ const specs=entries.map(entry=>{
+  const match=/^([a-z0-9-]+)\.([1-3])\.(0|[1-9a-z][0-9a-z]{0,6})$/.exec(entry);
+  if(!match||!validSkill(match[1])||(skill!==null&&match[1]!==skill))return null;
+  const seed=parseInt(match[3],36);
+  return seed<=0xffffffff?[match[1],Number(match[2]),seed]:null;
+ });
+ if(specs.some(spec=>!spec))return false;
+ const questions=specs.map(spec=>({...makeQuestion(...spec),sourceSkill:skill}));
+ for(const q of questions){qState.delete(q.id);qIndex.delete(q.id);}
+ state.practiceQs=questions;state.practiceCount=questions.length;state.practiceSkill=skill;state.practiceIds=selected;
+ state.sixPage=0;sixInkHistory=[];
+ return true;
+}
+async function copyPracticeSetLink(){
+ if(!state.practiceQs.length)return;
+ const link=practiceSetUrl();
+ try{await navigator.clipboard.writeText(link);toast('Link copied for this exact question set.');}
+ catch{
+  showModal('Copy question set link',`<p>Copy this link to reopen the same questions in order. Responses and whiteboard marks aren’t included.</p><div class="field"><label for="practice-share-url">Question set link</label><input id="practice-share-url" type="text" readonly value="${esc(link)}"></div>`);
+  $('#practice-share-url').focus();$('#practice-share-url').select();
+ }
+}
 function practiceRefreshButton(index){return btn('Refresh','refresh-practice-question','refresh','small ghost practice-question-refresh',`data-index="${index}" aria-label="Refresh question ${index+1}" title="Refresh question ${index+1} from your selected categories"`);}
 function refreshPracticeQuestion(index){
  if(state.view!=='practice'||!Number.isInteger(index)||index<0||index>=state.practiceQs.length)return false;
@@ -127,7 +174,7 @@ function practice(){
  return `<div class="page"><div class="page-heading"><div><div class="eyebrow">${state.practiceSkill?'INDEPENDENT PRACTICE':'DO NOW · RETRIEVAL PRACTICE'}</div><h1>${title}</h1><p>${state.practiceSkill?'Practise this skill with fresh values and your own working.':'Mix topics, revisit methods and check understanding across Unit 3.'}</p></div><div class="buttons">${btn('Full screen','six-screen','focus','small primary')}${btn('Timer','timer','timer','small')}${btn('Print questions','print-practice','print','small')}</div></div>
  <div class="practice-workspace">
   <section class="panel practice-settings-bar" aria-labelledby="practice-settings-title">
-   <div class="practice-settings-main"><h2 id="practice-settings-title">Your question set</h2><div class="field"><label for="practice-count">Number of questions</label><select id="practice-count">${[4,6,10,12,16,20].map(n=>`<option ${n===state.practiceCount?'selected':''}>${n}</option>`).join('')}</select></div>${btn('Generate fresh set','generate-practice','refresh','primary small')}</div>
+   <div class="practice-settings-main"><h2 id="practice-settings-title">Your question set</h2><div class="field"><label for="practice-count">Number of questions</label><select id="practice-count">${practiceCounts.map(n=>`<option ${n===state.practiceCount?'selected':''}>${n}</option>`).join('')}</select></div>${btn('Generate fresh set','generate-practice','refresh','primary small')}${btn('Copy question set link','copy-practice-link','link','small')}</div>
    ${state.practiceSkill?`<div class="practice-focused-skill"><p>Focused skill: <strong>${title}</strong></p>${btn('Switch to mixed retrieval','mixed-practice','recall','small ghost')}</div>`:`<div class="practice-topic-options" role="group" aria-labelledby="practice-topics-title"><div class="practice-topic-heading"><span class="field-label" id="practice-topics-title">Topics to include</span><div class="buttons topic-selection-actions">${btn('Select all','practice-topics-all','','small')}${btn('Clear all','practice-topics-none','','small ghost')}</div><p class="topic-selection-status" id="practice-selection-status" role="status">${practiceSelectionStatus()}</p></div><div class="check-group practice-topic-choices">${TOPICS.map(t=>{const {skills,count,all,mixed}=practiceTopicSelection(t.id);return `<label><input type="checkbox" data-practice-topic="${t.id}" ${all?'checked':''} aria-checked="${mixed?'mixed':String(all)}">${t.title}<span data-practice-topic-count="${t.id}">${count}/${skills.length}</span></label>`;}).join('')}</div>${practiceTypeOptions()}</div>`}
    <p class="status-line">Answers stay hidden until you choose to reveal them. Written explanations use a model response and self assessment.</p>
   </section>
@@ -137,7 +184,7 @@ function practice(){
 function visibleSixQuestions(){return state.practiceQs.slice(state.sixPage*6,state.sixPage*6+6);}
 function sixQuestionScreen(){
  const qs=visibleSixQuestions(),pages=Math.ceil(state.practiceQs.length/6),start=state.sixPage*6,title=state.practiceSkill?SKILLS.find(s=>s.id===state.practiceSkill).title:'Unit 3 · Mixed retrieval',allRevealed=qs.every(q=>qa(q).model);
- return `<main class="six-screen" id="main" tabindex="-1" aria-label="Full-screen question board"><header class="six-header"><div class="six-title"><span class="eyebrow">BYTESIZE WHITEBOARD · AQA 8525</span><h1>${title}</h1><span class="six-page-label">Questions ${start+1}–${start+qs.length} of ${state.practiceQs.length} · Write your responses on your whiteboard</span></div><div class="six-timer"><button class="six-countdown ${timer.done?'done':''}" data-action="timer" aria-label="Set classroom timer"><span class="six-clock-label">CLASSROOM TIMER · <span id="six-timer-state">${timer.done?'Time is up':timer.running?'Running':timer.remaining===timer.duration?'Ready':'Paused'}</span></span><span id="six-timer-text" role="timer" aria-label="Time remaining">${timeText(timer.remaining)}</span></button><div class="six-timer-buttons">${btn(timer.running?'Pause':'Start','timer-toggle',timer.running?'timer':'play','small primary','id="six-timer-toggle"')}${ib('Reset classroom timer','timer-reset','refresh')}${ib('Set timer duration','timer','timer')}</div></div><div class="six-actions"><div class="buttons">${btn(allRevealed?'Hide answers':'Show answers','six-answers','eye','small')}${btn('More questions','six-fresh','refresh','small primary','title="Refresh all six questions"')}${ib('Decrease question text size','font-down','minus')}${ib('Increase question text size','font-up','plus')}${btn('Exit full screen','six-exit','close','small')}</div>${pages>1?`<div class="six-pagination">${btn('Previous six','six-prev','back','small',state.sixPage===0?'disabled':'')}<span>Page ${state.sixPage+1} of ${pages}</span>${btn('Next six','six-next','arrow','small',state.sixPage===pages-1?'disabled':'')}</div>`:'<span class="six-exit-hint">Esc to exit · Timer stays visible</span>'}</div><div class="six-whiteboard-tools"><span class="six-whiteboard-label">Whiteboard tools</span>${drawingToolbar()}<span class="six-drawing-tip">Choose the pointer to scroll a question</span></div></header><div class="six-grid" role="group" aria-label="Questions in three columns and two rows">${qs.map((q,i)=>{const s=qa(q);return `<article class="six-card"><header class="six-card-head"><span class="badge">${String(start+i+1).padStart(2,'0')}</span><h2>${q.title}</h2>${practiceRefreshButton(start+i)}</header><div class="six-card-content" tabindex="0" aria-label="Question ${start+i+1}"><div class="six-annotatable"><div class="six-question-text"><div class="question-copy">${q.prompt.replace('Click a cell to make it dark; click again to make it white.','Draw the bitmap on your whiteboard.')}</div>${q.figure?`<div class="figure">${q.figure}</div>`:''}${s.hint?`<div class="hint">${q.hint}</div>`:''}${s.model?modelHTML(q):''}</div><svg class="ink-layer ${state.pen!=='pointer'?'enabled':''}" data-ink="${q.id}" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="Question ${start+i+1} annotations"><g class="ink-content">${strokesHTML(s.ink)}</g></svg></div></div><footer class="six-card-foot"><span>${q.ref}</span><div class="buttons">${btn(s.hint?'Hide hint':'Hint','hint','help','small ghost',`data-q="${q.id}"`)}${btn(s.model?'Hide answer':'Answer','reveal','eye','small',`data-q="${q.id}"`)}</div></footer></article>`;}).join('')}${Array.from({length:6-qs.length},()=>'<div class="six-empty" aria-hidden="true">End of question set</div>').join('')}</div></main>`;
+ return `<main class="six-screen" id="main" tabindex="-1" aria-label="Full-screen question board"><header class="six-header"><div class="six-title"><span class="eyebrow">BYTESIZE WHITEBOARD · AQA 8525</span><h1>${title}</h1><span class="six-page-label">Questions ${start+1}–${start+qs.length} of ${state.practiceQs.length} · Write your responses on your whiteboard</span></div><div class="six-timer"><button class="six-countdown ${timer.done?'done':''}" data-action="timer" aria-label="Set classroom timer"><span class="six-clock-label">CLASSROOM TIMER · <span id="six-timer-state">${timer.done?'Time is up':timer.running?'Running':timer.remaining===timer.duration?'Ready':'Paused'}</span></span><span id="six-timer-text" role="timer" aria-label="Time remaining">${timeText(timer.remaining)}</span></button><div class="six-timer-buttons">${btn(timer.running?'Pause':'Start','timer-toggle',timer.running?'timer':'play','small primary','id="six-timer-toggle"')}${ib('Reset classroom timer','timer-reset','refresh')}${ib('Set timer duration','timer','timer')}</div></div><div class="six-actions"><div class="buttons">${btn(allRevealed?'Hide answers':'Show answers','six-answers','eye','small')}${btn('More questions','six-fresh','refresh','small primary','title="Refresh all six questions"')}${ib('Copy question set link','copy-practice-link','link')}${ib('Decrease question text size','font-down','minus')}${ib('Increase question text size','font-up','plus')}${btn('Exit full screen','six-exit','close','small')}</div>${pages>1?`<div class="six-pagination">${btn('Previous six','six-prev','back','small',state.sixPage===0?'disabled':'')}<span>Page ${state.sixPage+1} of ${pages}</span>${btn('Next six','six-next','arrow','small',state.sixPage===pages-1?'disabled':'')}</div>`:'<span class="six-exit-hint">Esc to exit · Timer stays visible</span>'}</div><div class="six-whiteboard-tools"><span class="six-whiteboard-label">Whiteboard tools</span>${drawingToolbar()}<span class="six-drawing-tip">Choose the pointer to scroll a question</span></div></header><div class="six-grid" role="group" aria-label="Questions in three columns and two rows">${qs.map((q,i)=>{const s=qa(q);return `<article class="six-card"><header class="six-card-head"><span class="badge">${String(start+i+1).padStart(2,'0')}</span><h2>${q.title}</h2>${practiceRefreshButton(start+i)}</header><div class="six-card-content" tabindex="0" aria-label="Question ${start+i+1}"><div class="six-annotatable"><div class="six-question-text"><div class="question-copy">${q.prompt.replace('Click a cell to make it dark; click again to make it white.','Draw the bitmap on your whiteboard.')}</div>${q.figure?`<div class="figure">${q.figure}</div>`:''}${s.hint?`<div class="hint">${q.hint}</div>`:''}${s.model?modelHTML(q):''}</div><svg class="ink-layer ${state.pen!=='pointer'?'enabled':''}" data-ink="${q.id}" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="Question ${start+i+1} annotations"><g class="ink-content">${strokesHTML(s.ink)}</g></svg></div></div><footer class="six-card-foot"><span>${q.ref}</span><div class="buttons">${btn(s.hint?'Hide hint':'Hint','hint','help','small ghost',`data-q="${q.id}"`)}${btn(s.model?'Hide answer':'Answer','reveal','eye','small',`data-q="${q.id}"`)}</div></footer></article>`;}).join('')}${Array.from({length:6-qs.length},()=>'<div class="six-empty" aria-hidden="true">End of question set</div>').join('')}</div></main>`;
 }
 function nativeFullscreenElement(){return document.fullscreenElement||document.webkitFullscreenElement;}
 async function enterSixQuestionScreen(){
@@ -468,6 +515,7 @@ document.addEventListener('click',async e=>{const boardRle=e.target.closest('[da
  if(a==='six-prev'||a==='six-next'){state.sixPage=Math.max(0,Math.min(Math.ceil(state.practiceQs.length/6)-1,state.sixPage+(a==='six-next'?1:-1)));render();return;}
  if(a==='six-answers'){const qs=visibleSixQuestions(),show=!qs.every(q=>qa(q).model);qs.forEach(q=>qa(q).model=show);render();return;}
  if(a==='six-fresh'){refreshPracticeSeed();if(generatePractice()){state.sixPage=0;render();}return;}
+ if(a==='copy-practice-link'){await copyPracticeSetLink();return;}
  if(a==='refresh-practice-question'){refreshPracticeQuestion(idx);return;}
  if(a==='font-up'||a==='font-down'){prefs.font=Math.max(.85,Math.min(1.5,Math.round((prefs.font+(a==='font-up'?.1:-.1))*100)/100));persist();document.documentElement.style.setProperty('--qscale',prefs.font);toast(`Question text: ${Math.round(prefs.font*100)}%`);return;}
  if(a==='projector'){if(state.view==='practice'){await enterSixQuestionScreen();}else{state.projector=!state.projector;render();}return;}

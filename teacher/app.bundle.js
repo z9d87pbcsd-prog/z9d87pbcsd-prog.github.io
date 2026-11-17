@@ -1138,10 +1138,10 @@
   }
   if (Array.isArray(stored.lessons)) prefs.lessons = stored.lessons.map(cleanLesson).filter(Boolean).slice(0, 100);
   var BOARD_TREES = [
-    { id: "four", label: "4 letters · mixed frequencies", characters: 4, equal: false, text: "CACHE" },
-    { id: "balanced", label: "4 letters · equal frequencies", characters: 4, equal: true, text: "TEAMMATE" },
-    { id: "five", label: "5 letters · mixed frequencies", characters: 5, equal: false, text: "BALLOON" },
-    { id: "six", label: "6 letters · mixed frequencies", characters: 6, equal: false, text: "BOOKKEEPER" }
+    { id: "four", label: "4 symbols · mixed frequencies", characters: 4, equal: false, text: "CACHE" },
+    { id: "balanced", label: "4 symbols · equal frequencies", characters: 4, equal: true, text: "TEAMMATE" },
+    { id: "five", label: "5 symbols · mixed frequencies", characters: 5, equal: false, text: "BALLOON" },
+    { id: "six", label: "6 symbols · mixed frequencies", characters: 6, equal: false, text: "BOOKKEEPER" }
   ];
   var BOARD_PHRASES = [
     ["she-sells-shells", "She sells shells"],
@@ -1156,8 +1156,7 @@
     ["betty-botter", "Betty Botter"]
   ].map(([id, label]) => ({ id: "phrase-" + id, label, text: label.toUpperCase() }));
   var boardPhraseByText = new Map(BOARD_PHRASES.map((phrase) => [phrase.text, phrase]));
-  var boardTreeLetters = (text) => text.replaceAll(" ", "");
-  var boardTreeFrequencies = (text) => Object.values(huffmanData(boardTreeLetters(text)).counts);
+  var boardTreeFrequencies = (text) => Object.values(huffmanData(text).counts);
   var balancedCounts = (counts) => counts.every((n) => n === counts[0]);
   var BOARD_TREE_SOURCES = [.../* @__PURE__ */ new Set([
     ...BOARD_TREES.map((t) => t.text),
@@ -1180,7 +1179,9 @@
     "COOKBOOK",
     "PEPPERMINT",
     "PEPPER",
-    // Repeating a four-letter word is another way to demonstrate a tie.
+    // These words keep four symbols tied even when phrases count their spaces.
+    "REAPPEAR",
+    "COUSCOUS",
     "BYTE BYTE",
     "CODE CODE",
     "BITS BITS",
@@ -1190,7 +1191,7 @@
     "PLAY PLAY",
     "READ READ",
     ...ENCODING_WORDS.map((word) => word.toUpperCase())
-  ])].map((text) => ({ text, counts: boardTreeFrequencies(text) })).filter(({ text, counts }) => counts.length >= 3 && counts.length <= 6 && boardTreeLetters(text).length > counts.length);
+  ])].map((text) => ({ text, counts: boardTreeFrequencies(text) })).filter(({ text, counts }) => text.length > counts.length);
   var boardTreeTexts = new Set([...BOARD_TREE_SOURCES, ...BOARD_PHRASES].map(({ text }) => text));
   var boardTreeSourceLabel = (text) => `${boardTreeTexts.has(text) ? text.includes(" ") ? "Phrase" : "Word" : "Saved text"}: ${text}`;
   var legacyBoardDefaults = { four: "AAAABBCD", balanced: "AAAABBBBCCCCDDDD", five: "AAAAAAAAAAAABBBBBBCCCCDDDE", six: "AAAAAAAABBBBBBCCCCDDDDEEF" };
@@ -1212,7 +1213,7 @@
   var emptyBoard = () => ({ strokes: [], background: "plain", template: "none", bitmapWidth: 8, bitmapHeight: 8, bitmapPixels: "0".repeat(256), huffmanTrees: [defaultBoardTree()], huffmanIndex: 0, additionSeed: 84231, additionAnswer: false, rleSeed: 81379, rleAnswer: false, rleResponse: "", rleChecked: false, asciiSeed: 48193, asciiAnswer: false, asciiLength: 4 });
   function cleanBoard(x) {
     if (!x || !Array.isArray(x.strokes)) return emptyBoard();
-    const huffmanTrees = Array.isArray(x.huffmanTrees) ? x.huffmanTrees.filter((t) => t && typeof t.text === "string" && t.text.length <= 120 && /^[A-Z]+(?: [A-Z]+)*$/.test(t.text) && new Set(boardTreeLetters(t.text)).size >= 2).slice(0, 2).map((t) => {
+    const huffmanTrees = Array.isArray(x.huffmanTrees) ? x.huffmanTrees.filter((t) => t && typeof t.text === "string" && t.text.length <= 120 && /^[A-Z]+(?: [A-Z]+)*$/.test(t.text) && new Set(t.text).size >= 2).slice(0, 2).map((t) => {
       const preset = boardTreeCategory(t.text, t.preset), category = BOARD_TREES.find((example) => example.id === preset);
       const text = category && x.strokes.length === 0 && t.text === legacyBoardDefaults[preset] ? category.text : t.text;
       return { preset, text };
@@ -1709,11 +1710,12 @@
     if (type === "huffman") {
       const trees = boardHuffmanTrees(page);
       return `<text x="65" y="65" font-size="22" fill="#745d8d">HUFFMAN ${trees.length > 1 ? "TREES" : "TREE"} · LEFT 0, RIGHT 1</text>${trees.map((tree, i) => {
-        const data = huffmanData(boardTreeLetters(tree.text)), x = trees.length === 1 ? 55 : 55 + i * 570, width2 = trees.length === 1 ? 1090 : 520;
-        const compact = trees.length > 1 && Object.keys(data.codes).length > 6;
+        const data = huffmanData(tree.text), x = trees.length === 1 ? 55 : 55 + i * 570, width2 = trees.length === 1 ? 1090 : 520;
+        const symbols = Object.keys(data.codes).length, spaces = data.counts[" "] ?? 0, compact = trees.length > 1 && symbols > 6;
         const svg = treeFigure(data, compact ? { leafSpacing: 56 } : void 0).replace('class="huffman-tree"', `class="board-huffman-tree" x="${x}" y="157" width="${width2}" height="453" style="color:#776489"`).replaceAll("<text ", '<text fill="#554366" font-family="monospace" font-size="16" ');
         const label = boardTreeSourceLabel(tree.text), size = label.length <= 34 ? 24 : 18, fit = label.length > 45 ? ` textLength="${width2 - 20}" lengthAdjust="spacingAndGlyphs"` : "";
-        return `<text x="${x + 10}" y="108" font-size="${size}" font-weight="bold" fill="#554366"${fit} data-huffman-source="">${esc(label)}</text><text x="${x + 10}" y="137" font-size="18" fill="#745d8d">Tree ${i + 1} · ${Object.keys(data.codes).length} symbols · ${data.text.length} letters</text>${svg}`;
+        const summary = `Tree ${i + 1} · ${symbols} symbols · ${data.text.length} characters${spaces ? ` · ${spaces} ${spaces === 1 ? "space" : "spaces"}` : ""}`;
+        return `<text x="${x + 10}" y="108" font-size="${size}" font-weight="bold" fill="#554366"${fit} data-huffman-source="">${esc(label)}</text><text x="${x + 10}" y="137" font-size="17" fill="#745d8d">${summary}</text>${svg}`;
       }).join("")}`;
     }
     if (type === "sound") return `<g fill="#745d8d"><text x="65" y="65" font-size="22">SOUND SAMPLING</text><text x="65" y="125" font-size="18">amplitude</text><text x="1010" y="565" font-size="18">time →</text></g><path d="M100 160v360h950" fill="none" stroke="#b9a3cb" stroke-width="2"/><path d="M100 340C200 140 300 140 400 340S600 540 700 340S900 140 1050 340" fill="none" stroke="#9b83b1" stroke-width="3"/><text x="100" y="630" font-size="23" fill="#745d8d">Size (bits) = sampling rate × sample resolution × seconds</text>`;
@@ -1739,7 +1741,7 @@
       const selected = page.huffmanTrees[page.huffmanIndex];
       const activePhrase = selected.preset === "phrases" ? boardPhraseByText.get(selected.text) : null;
       const phraseOptions = BOARD_PHRASES.map((phrase) => `<option value="${phrase.id}" ${activePhrase?.id === phrase.id ? "selected" : ""}>${esc(phrase.label)}</option>`).join("");
-      return `<section class="board-template-controls huffman-settings" aria-label="Huffman tree options"><label for="board-tree-active">Edit tree<select id="board-tree-active">${page.huffmanTrees.map((_, i) => `<option value="${i}" ${i === page.huffmanIndex ? "selected" : ""}>Tree ${i + 1}</option>`).join("")}</select></label><label for="board-tree-example">Example<select id="board-tree-example">${BOARD_TREES.map((t) => `<option value="${t.id}" ${selected.preset === t.id ? "selected" : ""}>${t.label}</option>`).join("")}<option value="random" ${selected.preset === "random" ? "selected" : ""}>Mixed words and phrases</option><optgroup label="Familiar phrases"><option value="phrases">Random familiar phrase</option>${phraseOptions}</optgroup></select></label><div class="buttons">${btn("New tree", "board-tree-new", "refresh", "small", 'title="Choose another word or phrase for this tree"')}${btn("Add tree", "board-tree-add", "plus", "small", page.huffmanTrees.length >= 2 ? 'disabled title="Use another page for more trees"' : 'title="Add a second tree beside the first"')}${ib("Remove selected tree", "board-tree-remove", "trash", page.huffmanTrees.length < 2 ? "disabled" : "")}</div><span class="board-template-note">Trees count letters in the displayed word or phrase. Spaces are ignored. Compare up to two trees per page.</span></section>`;
+      return `<section class="board-template-controls huffman-settings" aria-label="Huffman tree options"><label for="board-tree-active">Edit tree<select id="board-tree-active">${page.huffmanTrees.map((_, i) => `<option value="${i}" ${i === page.huffmanIndex ? "selected" : ""}>Tree ${i + 1}</option>`).join("")}</select></label><label for="board-tree-example">Example<select id="board-tree-example">${BOARD_TREES.map((t) => `<option value="${t.id}" ${selected.preset === t.id ? "selected" : ""}>${t.label}</option>`).join("")}<option value="random" ${selected.preset === "random" ? "selected" : ""}>Mixed words and phrases</option><optgroup label="Familiar phrases"><option value="phrases">Random familiar phrase</option>${phraseOptions}</optgroup></select></label><div class="buttons">${btn("New tree", "board-tree-new", "refresh", "small", 'title="Choose another word or phrase for this tree"')}${btn("Add tree", "board-tree-add", "plus", "small", page.huffmanTrees.length >= 2 ? 'disabled title="Use another page for more trees"' : 'title="Add a second tree beside the first"')}${ib("Remove selected tree", "board-tree-remove", "trash", page.huffmanTrees.length < 2 ? "disabled" : "")}</div><span class="board-template-note">Spaces count as characters and appear as a leaf labelled “space”. Compare up to two trees per page.</span></section>`;
     }
     return "";
   }
@@ -2060,9 +2062,9 @@
     }
   }
   function randomBoardTree(existing, preset = "random") {
-    const random = rng(freshSeed() + ++boardTreeRound * 104729 >>> 0), blocked = new Set(existing.map((t) => boardTreeLetters(t.text))), category = BOARD_TREES.find((t) => t.id === preset);
+    const random = rng(freshSeed() + ++boardTreeRound * 104729 >>> 0), blocked = new Set(existing.map((t) => t.text)), category = BOARD_TREES.find((t) => t.id === preset);
     const sources = preset === "phrases" ? BOARD_PHRASES : BOARD_TREE_SOURCES;
-    const pool = sources.filter(({ text, counts }) => !blocked.has(boardTreeLetters(text)) && (!category || counts.length === category.characters && balancedCounts(counts) === category.equal));
+    const pool = sources.filter(({ text, counts }) => !blocked.has(text) && (preset === "phrases" || (category ? counts.length === category.characters && balancedCounts(counts) === category.equal : counts.length >= 3 && counts.length <= 6)));
     const choice = pool[Math.floor(random() * pool.length)];
     return { preset: category?.id || (preset === "phrases" ? "phrases" : "random"), text: choice.text };
   }
@@ -2975,7 +2977,7 @@
       return;
     }
     if (a === "board-help") {
-      showModal("Teaching with the blank board", `<p>Select Pen, Highlighter or Straight line, then drag with a mouse, pen or finger. Eraser removes a whole stroke. Use Text, then click the board to place a typed label.</p><p>Choose a plain, dotted or square background. Templates add eight-bit columns, generated two- or three-number binary addition, bitmap grids, ASCII groups and generated word exercises, Huffman trees, RLE encoding and decoding, or a sound sampling diagram. Addition, RLE and ASCII word examples keep their answers hidden until you choose Show answer; New example generates fresh values. Choose ASCII word file size, word to decimal or word to 7-bit binary, then choose 3, 4, 5 or 6 letters. ASCII file sizes count exactly seven bits per character and exclude metadata and padding. Binary ASCII codes use exactly seven bits for each letter. Letter case is preserved. In RLE decoding, tap row cells to toggle 0 and 1, use Check row to check your decoding, or Clear row to start again. Space and Enter also toggle focused cells. Showing the model preserves your own row, which returns when you hide the answer. Bitmap width and height sliders each run from 1 to 16 pixels. Tap a grid cell to switch between white and black, or focus a cell and press Space or Enter. Drag with the pen to annotate. Painted pixels stay in their row and column when the grid is resized. Huffman trees are built from the displayed word or phrase, each with at least one repeated letter. Choose an example from Familiar phrases to use a tongue twister or a short excerpt. Spaces are ignored. New tree chooses another example in the same category, and Add tree places a second tree beside it.</p><p>Use + to add a page and Delete page to remove the current page. Keep at least one page. Undo delete restores removed pages during this visit. Each page keeps its own template settings and drawing.</p><p>Pages are saved automatically in this browser. Undo board change restores drawings, cleared ink and template changes. Export SVG saves the current page, including its background, template settings and annotations.</p>`);
+      showModal("Teaching with the blank board", `<p>Select Pen, Highlighter or Straight line, then drag with a mouse, pen or finger. Eraser removes a whole stroke. Use Text, then click the board to place a typed label.</p><p>Choose a plain, dotted or square background. Templates add eight-bit columns, generated two- or three-number binary addition, bitmap grids, ASCII groups and generated word exercises, Huffman trees, RLE encoding and decoding, or a sound sampling diagram. Addition, RLE and ASCII word examples keep their answers hidden until you choose Show answer; New example generates fresh values. Choose ASCII word file size, word to decimal or word to 7-bit binary, then choose 3, 4, 5 or 6 letters. ASCII file sizes count exactly seven bits per character and exclude metadata and padding. Binary ASCII codes use exactly seven bits for each letter. Letter case is preserved. In RLE decoding, tap row cells to toggle 0 and 1, use Check row to check your decoding, or Clear row to start again. Space and Enter also toggle focused cells. Showing the model preserves your own row, which returns when you hide the answer. Bitmap width and height sliders each run from 1 to 16 pixels. Tap a grid cell to switch between white and black, or focus a cell and press Space or Enter. Drag with the pen to annotate. Painted pixels stay in their row and column when the grid is resized. Huffman trees are built from the displayed word or phrase, each with at least one repeated letter. Choose an example from Familiar phrases to use a tongue twister or a short excerpt. Spaces count as characters and share a leaf labelled “space”. New tree chooses another example in the same category, and Add tree places a second tree beside it.</p><p>Use + to add a page and Delete page to remove the current page. Keep at least one page. Undo delete restores removed pages during this visit. Each page keeps its own template settings and drawing.</p><p>Pages are saved automatically in this browser. Undo board change restores drawings, cleared ink and template changes. Export SVG saves the current page, including its background, template settings and annotations.</p>`);
       return;
     }
     if (a === "timer") {

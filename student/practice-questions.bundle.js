@@ -1,5 +1,5 @@
 (() => {
-  // dist/student/worked-methods.js
+  // bytesize-pages-v27/dist/student/worked-methods.js
   (function(root) {
     "use strict";
     if (root.BytesizeMethods) return;
@@ -36,6 +36,7 @@
     add("rle-encode", "Encode consecutive runs", ["Start with the leftmost bit and count its uninterrupted run.", "Write a count/value pair with the count first. Start a new pair whenever the bit changes.", "Continue to the end, without combining separated runs. Add the counts to check that they cover every input bit."], `Separate example with two runs: ${code("000000001111111")} becomes ${code("(8, 0) (7, 1)")}. The counts add to 15 bits.`);
     add("rle-decode", "Expand count/value pairs", ["Read the first pair: identify its count and its bit value.", "Write that bit as many times as the count states, then do the same for each remaining pair.", "Join the runs in order. Check the reconstructed length against the sum of the counts."], `Separate example: ${code("(8, 0) (7, 1)")} expands to ${code("000000001111111")}. Do not reverse the count and value.`);
     add("bitmap-pixels", "Count bitmap pixels", ["Count the number of columns and the number of rows.", "Multiply width by height to find the number of pixel positions.", "Keep pixels separate from bits and bytes in your working."], "Separate example: a 13 × 17 image has 13 × 17 = 221 pixels.");
+    add("bitmap-representation", "Explain how a bitmap represents a picture", ["Describe what one square in the grid represents.", "Use width and height to describe where the squares are stored.", "Explain what the bit pattern for one square tells you. Link the number of bits per pixel to the possible colours."]);
     add("bitmap-depth", "Find the minimum colour depth", ["Count the different colours in the complete displayed palette.", "List the capacities for increasing bit depths using 2ⁿ.", "Choose the smallest number of bits whose capacity can represent every palette colour."], "Separate example: a palette of 512 colours requires 9 bits per pixel because 2⁹ = 512. A palette is a list of distinct colours, not a count of pixels.");
     add("bitmap-total", "Calculate bitmap storage in bits", ["Work out the pixel count as width × height.", "Find the bits needed for each pixel from the stated depth or complete palette.", "Multiply pixel count by bits per pixel. Follow any instruction about headers or metadata."], "Separate example: 13 × 17 pixels at 5 bits per pixel use 13 × 17 × 5 = 1,105 bits of pixel data.");
     add("bitmap-bytes", "Convert pixel-data bits to bytes", ["Calculate the complete pixel-data size in bits first.", "Use 8 bits per byte to convert that total.", "Check whether an exact value or rounding instruction is requested."], "Separate example: 1,128 bits ÷ 8 = 141 bytes.");
@@ -50,7 +51,9 @@
     add("huffman-decode", "Decode a message using its tree", ["Start at the root and follow one supplied bit at a time.", "When you reach a leaf, record its character and return to the root.", "Continue from the next unused bit. The last character should finish at a leaf, with no bits left over."], "Separate code table: L = 0, M = 10, N = 11. Split 010110 as 0 | 10 | 11 | 0 to decode LMNL.");
     add("huffman-size", "Calculate a compressed message size", ["Count the length of each character’s supplied code.", "For each table row, multiply its frequency by its code length.", "Add those row totals. Include only the data and overheads the question specifies."], "Separate example: frequencies L = 3, M = 2, N = 1 with codes 0, 10 and 11 use (3 × 1) + (2 × 2) + (1 × 2) = 9 bits.");
     add("huffman-ascii", "Compare compressed and ASCII sizes", ["Count the total characters, including any repeated copies stated in the question.", "Multiply the character count by the stated ASCII bits per character.", "Subtract the compressed size from the uncompressed size. Use the same unit for both."], "Separate example: 6 characters in 7-bit ASCII use 42 bits. If their compressed representation uses 9 bits, the saving is 42 − 9 = 33 bits.");
+    add("huffman-savings", "Calculate Huffman and ASCII storage", ["Multiply each character’s frequency by its own code length. Add the results for the compressed bit count.", "Add the frequencies to get the character count. Multiply by the stated bits per ASCII character.", "Subtract the compressed bit count from the ASCII bit count. Follow the question’s instructions about metadata."]);
     add("sound-digital", "Reason about digital sound", ["Separate the physical signal from the representation a computer stores.", "Consider whether the signal varies continuously or is a collection of measurements.", "Connect the required storage format to a suitable representation of those measurements."]);
+    add("sound-sampling", "Explain digital sampling", ["Look at the plotted points. Identify the property of the wave measured at each point.", "Explain what the value in Hz tells you about how often measurements are taken.", "Explain what the value in bits tells you about how each measurement is stored."]);
     add("sound-sample sound-read", "Read one sound sample", ["Identify the sample number or time requested.", "Find its plotted point and follow across to the amplitude scale.", "Read that amplitude, rather than the horizontal position, recording duration or overall file size."], "Separate chart example: if a point is halfway between amplitude labels 10 and 12, its amplitude is 11 in that chart’s units.");
     add("sound-rate", "Interpret a sampling rate", ["Identify the quantity measured by the rate and the time interval used.", "Distinguish a count per second from bits per measurement and total recording duration.", "Apply that interpretation to the rate in the question."], "Separate example: 6 measurements each second for 3 seconds gives 6 × 3 = 18 measurements.");
     add("sound-resolution", "Interpret sample resolution", ["Identify what a single stored sample represents.", "Distinguish bits allocated to that one sample from how frequently samples are taken.", "Relate the available bit patterns to the levels that can be represented."], "Separate example: 3 binary positions provide 2³ = 8 different stored patterns.");
@@ -110,7 +113,7 @@
     }
   })(globalThis);
 
-  // dist/teacher/word-bank.js
+  // bytesize-pages-v27/dist/teacher/word-bank.js
   var words = (text) => [...new Set(text.trim().split(/\s+/))];
   var COMPUTING_WORDS = Object.freeze(words(`
  alu array ascii base bases binary bit bits bubble byte bytes cache clock cloud
@@ -221,9 +224,9 @@
 `).filter((word) => word.length >= 3 && word.length <= 6 && !COMPUTING_WORDS.includes(word)));
   var ENCODING_WORDS = Object.freeze([...COMPUTING_WORDS, ...COMMON_WORDS]);
   var excludedWord = () => Object.assign(new RangeError("No unused words remain for this word length."), { code: "WORD_POOL_EXHAUSTED" });
-  function chooseEncodingWord(random, lengths = [3, 4, 5, 6], { excludeWords = /* @__PURE__ */ new Set(), preferComputing = false } = {}) {
+  function chooseEncodingWord(random, lengths = [3, 4, 5, 6], { excludeWords = /* @__PURE__ */ new Set(), preferComputing = false, requireRepeatedLetter = false } = {}) {
     const excluded = excludeWords instanceof Set ? excludeWords : new Set(excludeWords);
-    const eligible = (word2) => lengths.includes(word2.length) && !excluded.has(word2);
+    const eligible = (word2) => lengths.includes(word2.length) && !excluded.has(word2) && (!requireRepeatedLetter || new Set(word2).size < word2.length);
     const computing = COMPUTING_WORDS.filter(eligible), common = COMMON_WORDS.filter(eligible);
     const pool = computing.length && (preferComputing || !common.length || random() < 0.8) ? computing : common;
     if (!pool.length) throw excludedWord();
@@ -231,7 +234,228 @@
     return { word, wordCategory: COMPUTING_WORDS.includes(word) ? "computing" : "common" };
   }
 
-  // dist/teacher/bank.js
+  // bytesize-pages-v27/dist/teacher/logic.js
+  var INPUTS = Object.freeze(["A", "B", "C", "D", "E"]);
+  var GATES = Object.freeze({ NOT: 1, AND: 2, OR: 2, XOR: 2 });
+  var logicNode = (op, ...args) => ({ op, args });
+  var symbols = { AND: ".", OR: "+", XOR: "⊕" };
+  var negationMark = '<span class="logic-overbar-mark" aria-hidden="true"></span>';
+  function evaluateLogic(tree, inputs) {
+    if (INPUTS.includes(tree)) return Number(inputs[tree]);
+    const [a, b] = tree.args.map((child) => evaluateLogic(child, inputs));
+    return tree.op === "NOT" ? 1 - a : tree.op === "AND" ? a & b : tree.op === "OR" ? a | b : a ^ b;
+  }
+  function logicInputs(tree) {
+    const used = /* @__PURE__ */ new Set();
+    function walk(n) {
+      if (INPUTS.includes(n)) used.add(n);
+      else n?.args?.forEach(walk);
+    }
+    walk(tree);
+    return INPUTS.filter((x) => used.has(x));
+  }
+  function logicRows(tree, names = logicInputs(tree)) {
+    return Array.from({ length: 2 ** names.length }, (_, i) => {
+      const bits = names.map((_2, j) => i >> names.length - j - 1 & 1), inputs = Object.fromEntries(names.map((name, j) => [name, bits[j]]));
+      return { bits, output: evaluateLogic(tree, inputs) };
+    });
+  }
+  function logicExpressionHTML(tree, slot = null, path = [], root = true) {
+    const wrap = (label, contents) => slot ? slot(path, label, contents) : contents;
+    if (!tree) return wrap("Empty slot", "□");
+    if (INPUTS.includes(tree)) return wrap(tree, tree);
+    const args = tree.args.map((n, i) => logicExpressionHTML(n, slot, [...path, i], false));
+    if (tree.op === "NOT") return slot ? `<span class="logic-edit-negation">${slot(path, "Negation (NOT)", negationMark, "logic-negation-slot")}${args[0]}</span>` : `<span class="logic-overbar">${args[0]}</span>`;
+    const op = wrap(tree.op, symbols[tree.op]);
+    return `${root ? "" : "("}${args[0]} <span class="logic-op">${op}</span> ${args[1]}${root ? "" : ")"}`;
+  }
+  function logicTable(tree, { blank = false, names = logicInputs(tree) } = {}) {
+    const rows = logicRows(tree, names);
+    return `<table class="logic-truth"><thead><tr>${names.map((n) => `<th scope="col">${n}</th>`).join("")}<th scope="col">Q</th></tr></thead><tbody>${rows.map((r) => `<tr>${r.bits.map((v) => `<td>${v}</td>`).join("")}<td>${blank ? "&nbsp;" : r.output}</td></tr>`).join("")}</tbody></table>`;
+  }
+  function gateSymbol(op) {
+    const outline = op === "AND" ? '<path d="M0 -14 H22 A14 14 0 0 1 22 14 H0 Z"/>' : op === "NOT" ? '<path d="M0 -14 L33 0 L0 14 Z"/><circle cx="37" cy="0" r="4"/>' : '<path d="M0 -14 Q25 -17 42 0 Q25 17 0 14 Q12 0 0 -14 Z"/>' + (op === "XOR" ? '<path d="M-6 -14 Q6 0 -6 14" fill="none"/>' : "");
+    return `<g stroke="currentColor" stroke-width="1.6" fill="white" stroke-linejoin="round">${outline}</g>`;
+  }
+  var portOffset = (op, index) => op === "NOT" || op === "Q" ? 0 : index === 0 ? -7 : 7;
+  var gatePinX = (op, port) => port === "out" ? op === "AND" ? 36 : op === "NOT" ? 41 : 42 : op === "XOR" ? 0 : op === "OR" ? 6 : 0;
+  function logicCircuitFigure(tree) {
+    let row = 0;
+    const nodes = [], wires = [];
+    function layout(n) {
+      if (INPUTS.includes(n)) {
+        const y2 = 23 + 36 * row++;
+        nodes.push(`<text x="12" y="${y2 + 4}">${n}</text>`);
+        return { x: 30, y: y2 };
+      }
+      const children = n.args.map(layout), x = Math.max(...children.map((p) => p.x)) + 32, y = children.reduce((total, p) => total + p.y, 0) / children.length;
+      children.forEach((p, i) => {
+        const end2 = x + gatePinX(n.op, "in"), py = y + portOffset(n.op, i);
+        wires.push(`<path d="M${p.x} ${p.y} H${x - 16 - i * 5} V${py} H${end2}"/>`);
+      });
+      nodes.push(`<g transform="translate(${x} ${y})">${gateSymbol(n.op)}</g>`);
+      return { x: x + gatePinX(n.op, "out"), y };
+    }
+    const end = layout(tree), width = end.x + 46, height = Math.max(46, 36 * row + 10);
+    return `<svg class="logic-diagram" viewBox="0 0 ${width} ${height}" role="img" aria-label="Logic circuit diagram. Input labels are on the left and output Q on the right." xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="currentColor" stroke-width="1.6">${wires.join("")}<path d="M${end.x} ${end.y} H${end.x + 23}"/></g><g fill="currentColor" font-family="system-ui,sans-serif" font-size="12">${nodes.join("")}<text x="${end.x + 28}" y="${end.y + 4}">Q</text></g></svg>`;
+  }
+
+  // bytesize-pages-v27/dist/teacher/unit4.js
+  var SYSTEMS_TOPICS = [
+    ["hardware-software", "3.4.1", "Hardware and software", "▣", "Physical components and instructions", "#6974c4"],
+    ["boolean-logic", "3.4.2", "Boolean logic", "⊕", "Gates, truth tables, circuits and expressions", "#9855a7"],
+    ["software-classes", "3.4.3", "Software classification", "▤", "Operating systems, utilities and applications", "#357e80"],
+    ["translators", "3.4.4", "Languages and translators", "↔", "Machine code, assembly and high-level code", "#845f32"],
+    ["cpu-architecture", "3.4.5", "CPU and architecture", "▦", "CPU components, performance and instruction cycle", "#4c72ab"],
+    ["memory-storage", "3.4.5", "Memory and storage", "▱", "RAM, ROM, local storage and cloud storage", "#568357"],
+    ["embedded-systems", "3.4.5", "Embedded systems", "◉", "Dedicated and general-purpose computers", "#a45e79"]
+  ];
+  var records = {};
+  function skill(id, topic, title, objective, hint, variants = []) {
+    records[id] = { id, topic, title, objective, hint, variants };
+  }
+  skill("hardware-software-role", "hardware-software", "Hardware and software", "Distinguish physical hardware from software and explain how they work together.", "Which parts are physical? Which parts are instructions?", [
+    ["A computer is running a drawing program. Explain the difference between the processor and the drawing program.", "The processor is hardware, a physical component.", "The drawing program is software, a set of instructions executed by the hardware."],
+    ["A tablet takes a photograph. Give one example of hardware and one example of software from this process. Explain how the two work together.", "The physical camera is hardware.", "The camera application is software. It instructs the hardware to capture and store the image."],
+    ["A pupil says that a keyboard and its driver are both hardware. Explain the mistake.", "The keyboard is physical hardware.", "The driver is software that helps the computer control or communicate with the keyboard."],
+    ["Explain why a computer needs both hardware and software to run a word processor.", "Physical components include the processor and memory.", "The program provides instructions; the processor executes them and memory holds the program and data while it runs."]
+  ]);
+  skill("logic-gate-table", "boolean-logic", "Truth tables for gates", "Complete output columns for individual NOT, AND, OR and XOR gates.", "Evaluate the gate for each row in the order shown.");
+  skill("logic-circuit-table", "boolean-logic", "Truth tables for circuits", "Construct a truth table for a simple circuit with up to three inputs.", "Follow the wires from the inputs. Work out intermediate gate outputs first.");
+  skill("logic-table-read", "boolean-logic", "Interpret a truth table", "Find the output for an input combination or count the rows with a particular output.", "Read the input rows in the order shown and inspect Q.");
+  skill("logic-expression-output", "boolean-logic", "Evaluate a Boolean expression", "Evaluate Boolean expressions using AQA notation.", "Evaluate the bracketed parts and apply an overbar only to the part it covers.");
+  skill("logic-circuit-expression", "boolean-logic", "Circuit → Boolean expression", "Write a Boolean expression that represents a supplied circuit.", "Write an expression for each gate as you follow the wires towards Q.");
+  skill("logic-expression-circuit", "boolean-logic", "Boolean expression → circuit", "Draw a circuit with AQA gate symbols from a supplied expression.", "Work out the gate needed for each operator. Place the gate for the outermost operation nearest Q.");
+  skill("logic-modify", "boolean-logic", "Modify a logic circuit", "Change a circuit in a stated way and describe the effect.", "Keep the original inputs and work out where the new gate should go.");
+  skill("software-types", "software-classes", "System and application software", "Classify software by whether it manages the system or helps the user perform a task.", "Ask who or what the software directly supports.", [
+    ["Explain how an operating system differs from a spreadsheet application.", "An operating system is system software that manages resources and provides a platform for applications.", "A spreadsheet is application software that helps a user organise and calculate with data."],
+    ["Classify a word processor and an operating system as system software or application software. Explain each choice.", "The word processor is application software: it helps a user create documents.", "The operating system is system software: it manages the computer and supports applications."],
+    ["A photo editor and a backup utility are installed on a laptop. Explain which is application software and which is system software.", "The photo editor is application software for editing images.", "The backup utility is system software that helps maintain or protect stored data."]
+  ]);
+  skill("os-resources", "software-classes", "Operating system functions", "Explain how an operating system manages processor time, memory, devices, running applications and security.", "Name the resource and explain what the operating system does with it.", [
+    ["A browser and a music player are open. Explain how the operating system allows both to make progress.", "It schedules processor time for the running tasks.", "It manages the applications and allocates memory to each."],
+    ["A print job starts while a document is being edited. Explain two ways the operating system helps.", "It manages input/output by sending print data to the printer.", "It manages the running applications or schedules processor time while the user continues editing."],
+    ["Explain how an operating system can manage access to files on a school computer.", "It authenticates users or applies permissions to accounts.", "It checks permissions before granting access to resources such as files."],
+    ["Explain why an operating system allocates main memory when an application opens.", "A running application needs memory for instructions and data.", "The operating system allocates available space and tracks which regions are in use."]
+  ]);
+  skill("utility-purpose", "software-classes", "Utility programs", "Explain why maintenance and protection utilities are used.", "Name the maintenance task and explain the benefit.", [
+    ["A teacher wants to recover the original version of a damaged file. Explain how a backup utility helps if it was run before the damage.", "It creates a separate copy of the data.", "A previously saved copy can be restored if the original is lost or corrupted."],
+    ["Explain the purpose of an antivirus utility on a computer.", "It scans files or activity for signs of malicious software.", "It can block, quarantine or remove detected threats."],
+    ["Explain why a disk cleanup utility might be run on a computer with little free storage.", "It identifies removable items such as temporary files.", "Removing unnecessary files frees space on secondary storage."]
+  ]);
+  skill("language-levels", "translators", "High-level and low-level languages", "Compare readability, portability and hardware control at different language levels.", "Think about how close each language is to the processor’s instructions.", [
+    ["A team wants to maintain one program for several platforms. Give one reason to choose a high-level language and one drawback of using a low-level language.", "High-level code is generally easier to read, write and maintain. With suitable translators or runtimes it can be ported.", "Low-level code takes more detail to write and is usually tied to a processor instruction set."],
+    ["A developer is programming a controller that needs direct access to processor-specific features. Explain one advantage and one disadvantage of using assembly language.", "Assembly gives detailed control of instructions and hardware resources.", "It is harder to write and maintain, and is specific to an instruction set."],
+    ["Compare a high-level language with a low-level language, including a benefit of each.", "A high-level language provides abstractions that make programs easier for people to read and develop.", "A low-level language is closer to machine instructions and allows more direct hardware control."]
+  ]);
+  skill("machine-assembly", "translators", "Machine code and assembly", "Explain executable machine code and the one-to-one relationship between assembly instructions and machine instructions.", "Distinguish binary instructions from their mnemonic representations.", [
+    ["Explain the relationship between an assembly instruction and a machine code instruction.", "An assembly instruction uses a readable mnemonic for a processor operation.", "Each assembly instruction is translated into a corresponding machine code instruction, which the processor can execute."],
+    ["A computer stores a program as binary machine code. Explain why the same program might be written in assembly first.", "Machine code is expressed in binary and directly executed by the processor.", "Assembly mnemonics make the instructions easier for a programmer to read and edit; an assembler translates them."],
+    ["A program written in assembly for one type of processor does not necessarily run on another. Explain why.", "Machine instructions depend on the processor instruction set.", "Assembly maps to that instruction set, so a different processor may require rewritten instructions."]
+  ]);
+  skill("translator-choice", "translators", "Compilers, interpreters and assemblers", "Explain the need for translation and distinguish the three translator types.", "Identify the source language and when or how it is translated.", [
+    ["A developer wants to translate a complete high-level program into executable machine code before running it. Name the translator and explain what it does.", "A compiler.", "It translates the high-level source across the program and produces machine code that can be run later."],
+    ["During testing a program is translated and executed one statement at a time. Name the translator and explain how this differs from compiling the whole program.", "An interpreter.", "It translates and runs statements during execution, rather than producing a separate complete compiled program first."],
+    ["A programmer has written code using assembly mnemonics. Name the translator needed and describe its input and output.", "An assembler.", "It takes assembly code and translates assembly instructions to the corresponding machine code instructions."],
+    ["Explain why a high-level program must be translated before its instructions can be executed by a processor.", "Processors execute machine instructions expressed in binary.", "A translator converts the human-readable source to instructions the processor can execute."]
+  ]);
+  skill("cpu-components", "cpu-architecture", "Components of the CPU", "Explain the roles of the ALU, control unit, clock, registers and buses.", "Name the component and connect it to the specific job.", [
+    ["A processor compares two values and then changes the order of execution. Explain one role of the ALU and one role of the control unit.", "The ALU performs arithmetic and logical operations, such as the comparison.", "The control unit coordinates execution and directs the processor to the next required instruction."],
+    ["Explain how a clock and registers help a processor carry out instructions.", "The clock provides timing signals that synchronise processor operations.", "Registers are small, fast locations within the CPU that temporarily hold data or instructions in use."],
+    ["Describe the role of a bus when an instruction moves from main memory to the CPU.", "A bus provides shared signal paths between components.", "Signals identifying the location and the instruction data can travel between main memory and the processor."],
+    ["Explain why both the control unit and ALU are needed for an instruction to add two values.", "The control unit coordinates the stages and sends control signals.", "The ALU carries out the addition."]
+  ]);
+  skill("cpu-performance", "cpu-architecture", "CPU performance", "Explain how clock speed, cores and cache can affect performance.", "Link your answer to operations per second, parallel work or access to data.", [
+    ["Two otherwise identical CPUs have different clock speeds. Explain why the one with the higher clock speed may finish a task sooner.", "A higher clock speed provides more clock cycles per second.", "The CPU can perform more operations in a given time if other factors are the same."],
+    ["Explain why increasing the number of cores may speed up some programs but not all programs.", "Multiple cores allow tasks or parts of a program to run in parallel.", "A program that cannot divide its work across cores may gain little or no speed from additional cores."],
+    ["Explain how a larger CPU cache may improve performance.", "A larger cache can hold more frequently used instructions or data close to the CPU.", "The CPU may spend less time waiting for access to slower main memory."],
+    ["For a program frequently reusing the same data, explain whether a larger cache or an extra core is more directly helpful.", "A larger cache is more directly linked to faster access to reused data.", "An extra core would help if the program could divide work into parallel tasks."]
+  ]);
+  skill("fetch-execute", "cpu-architecture", "Fetch, decode, execute", "Explain the stages of the repeated instruction cycle and the role of main memory.", "Trace one instruction from main memory through the CPU.", [
+    ["Describe the three stages the CPU repeats to process instructions.", "Fetch the next instruction from main memory.", "Decode it to determine the operation.", "Execute the operation, which may read or write data."],
+    ["The CPU has fetched an instruction to add two values. Describe what happens during decoding and execution.", "The CPU identifies the addition operation and any operands or locations it uses.", "The ALU performs the addition and the result is stored or used as directed."],
+    ["Explain what is fetched, where it comes from, and why the processor then decodes it.", "The CPU fetches the next instruction from main memory.", "Decoding identifies what operation must be carried out and what data it uses."]
+  ]);
+  skill("memory-types", "memory-storage", "RAM, ROM, cache and registers", "Explain what each memory type is used for and why it is needed.", "Consider where the data is needed, how quickly, and whether it must survive power loss.", [
+    ["Explain why data and instructions for an open program are held in RAM, and why ROM can hold start-up instructions.", "RAM is writable and holds instructions and data currently in use while power is on.", "ROM is non-volatile and can retain start-up instructions while power is off."],
+    ["Explain the difference between cache and registers inside or close to a processor.", "Cache keeps frequently needed instructions and data available faster than main memory.", "Registers hold the specific values or instructions the processor is working with at that moment."],
+    ["A running program repeatedly uses the same instructions. Explain roles for RAM, cache and registers.", "RAM holds programs and data currently in use.", "Cache keeps frequently used instructions close to the CPU.", "Registers hold individual instructions or values during processing."],
+    ["Compare RAM and ROM in terms of volatility and one typical use for each.", "RAM is volatile: it loses contents when power is off. It is used for current programs and data.", "ROM is non-volatile: it retains its contents without power. It may hold start-up instructions."]
+  ]);
+  skill("memory-storage-distinction", "memory-storage", "Main memory and secondary storage", "Distinguish processor-accessible main memory from the long-term storage needed for programs and data.", "Compare direct access by the CPU and retention without power.", [
+    ["A document disappears when a computer loses power before it is saved. Explain why saving it to an SSD prevents this loss.", "The unsaved changes were held in volatile RAM.", "The SSD is non-volatile secondary storage, so saved data remains after power is switched off."],
+    ["A program is stored on a drive. Explain why it is loaded into main memory when it is run.", "The drive retains the program as secondary storage.", "The CPU directly accesses main memory to fetch the instructions while the program is running."],
+    ["Give two differences between main memory and secondary storage and explain why a computer needs secondary storage.", "The CPU can directly access main memory; secondary storage is not directly accessed in that way.", "Secondary storage retains data when switched off. It is needed to keep programs and data for later use."]
+  ]);
+  skill("storage-operation", "memory-storage", "Solid-state and magnetic storage", "Explain the operation of SSDs and magnetic drives and compare suitability for a task.", "Link how each stores data to a practical benefit or drawback.", [
+    ["Explain how a solid-state drive stores data and why it can be suitable for a laptop carried every day.", "An SSD uses electrical circuits to retain data without power.", "It has no moving parts, making it more resistant to shocks than a mechanical hard disk."],
+    ["Describe how a magnetic hard disk reads and writes data.", "The disk has spinning platters with magnetisable surfaces.", "A moving head changes or senses magnetisation to write or read data."],
+    ["A school needs a large capacity at low cost for local backups. Compare an SSD and a magnetic hard disk for this task.", "A magnetic hard disk typically costs less per unit of capacity.", "An SSD often reads and writes faster and has no moving parts, but may cost more for the same capacity."],
+    ["Compare an SSD with a magnetic hard disk for a computer that must load large programs quickly.", "An SSD can access stored data without waiting for a platter or head to move.", "A magnetic disk has moving parts and usually has longer access times, but can offer cheaper high capacity."]
+  ]);
+  skill("cloud-v-local", "memory-storage", "Cloud and local storage", "Explain what cloud storage is and compare it with local storage.", "Consider where files are stored, how users reach them and what can interrupt access.", [
+    ["A pupil wants to edit their work from home and school. Explain one advantage and one drawback of storing it in the cloud instead of on a local drive.", "Cloud files are held on remote storage and can be reached on different devices over a connection.", "The pupil may lose access if the network or service is unavailable."],
+    ["Explain where data is physically held when saved to cloud storage. Give one difference from saving it on the computer’s SSD.", "A provider stores it remotely on magnetic or solid-state equipment.", "A local SSD is at the user’s device and can usually be accessed without an internet connection."],
+    ["A department needs to share files between sites. Compare cloud storage and local storage for this use.", "Cloud storage can make controlled sharing and access across locations easier.", "Local storage can work offline and keep files under local control, but sharing between sites requires another transfer method."]
+  ]);
+  skill("embedded-purpose", "embedded-systems", "Embedded and general-purpose systems", "Distinguish an embedded system from a general-purpose computer and give examples.", "Ask whether the computer controls a specific function within another product.", [
+    ["A washing machine controller and a desktop PC are both computers. Explain why only the washing machine controller is an embedded system.", "The washing machine controller is built into the appliance and controls a dedicated set of functions.", "A PC is general-purpose and can run many different applications."],
+    ["Give an example of an embedded system and a non-embedded system. Explain what makes the embedded example different.", "A car’s anti-lock braking controller is built into the car for a specific control task.", "A general-purpose laptop can be used for many tasks by installing different applications."],
+    ["A traffic light controller reads sensors and changes the lights. Explain how it differs from a general-purpose desktop computer.", "The controller is integrated into the traffic light system and performs a specific control function.", "A desktop is designed to support different programs and tasks."]
+  ]);
+  var SYSTEMS_SKILLS = Object.values(records).map((r) => [r.id, r.topic, r.title, r.objective, r.objective, r.hint]);
+  var SYSTEMS_GUIDES = {
+    "hardware-software": ["Hardware is made up of physical parts. Programs and other instructions are software.", "Software relies on the hardware to execute instructions and handle data."],
+    "boolean-logic": ["Trace from inputs towards Q. Evaluate each gate only after its inputs are known.", "NOT reverses one bit. AND needs both 1s, OR needs at least one 1, and XOR needs exactly one 1.", "Use up to three independent inputs. Use a dot for AND, + for OR, ⊕ for XOR and an overbar for NOT."],
+    "software-classes": ["System software manages or maintains the computer. Application software performs tasks for the user.", "Operating systems manage processor time, memory, input/output, applications and security. Utilities support maintenance and protection."],
+    translators: ["Machine code is binary and directly executable. Assembly uses mnemonics that map to machine instructions.", "High-level languages use abstractions. A compiler translates a program, an interpreter translates and executes statements as it goes, and an assembler translates assembly."],
+    "cpu-architecture": ["The ALU performs arithmetic and logic. The control unit coordinates work. The clock synchronises operations; registers hold values in use and buses carry signals.", "The instruction cycle repeats: fetch from main memory, decode, execute. Clock speed, cores and cache affect performance in different ways."],
+    "memory-storage": ["RAM holds current data and instructions. ROM retains data without power. Cache holds frequently used values; registers hold values in immediate use.", "Main memory is directly accessible to the CPU. Secondary storage is non-volatile. Solid state and magnetic devices store data in different ways.", "Cloud storage holds data remotely on physical drives. Compare remote access and collaboration with connection dependence and local control."],
+    "embedded-systems": ["An embedded computer controls a dedicated function within a larger device or system. A general-purpose computer supports many different applications."]
+  };
+  var BINARY = ["AND", "OR", "XOR"];
+  var singles = [logicNode("NOT", "A"), logicNode("AND", "A", "B"), logicNode("OR", "A", "B"), logicNode("XOR", "A", "B")];
+  var circuits = [
+    logicNode("AND", logicNode("NOT", "A"), "B"),
+    logicNode("OR", "A", logicNode("NOT", "B")),
+    logicNode("XOR", logicNode("NOT", "A"), "B"),
+    logicNode("NOT", logicNode("OR", "A", "B")),
+    logicNode("NOT", logicNode("AND", "A", "B")),
+    logicNode("NOT", logicNode("XOR", "A", "B")),
+    ...BINARY.flatMap((outer) => BINARY.flatMap((inner) => [logicNode(outer, logicNode(inner, "A", "B"), "C"), logicNode(outer, "A", logicNode(inner, "B", "C")), logicNode(outer, logicNode(inner, "A", "B"), logicNode("NOT", "C"))]))
+  ];
+  var diagram = (tree) => logicCircuitFigure(tree);
+  var expression = (tree) => `<span class="logic-expression">${logicExpressionHTML(tree)}</span>`;
+  function makeSystemsQuestion(id, level, pick, { q: q2, written: written2, field: field2 }) {
+    const record = records[id];
+    const hint = record.hint;
+    if (record.variants.length) {
+      const [prompt, ...points] = pick(record.variants);
+      return written2(prompt, points, hint);
+    }
+    const tree = id === "logic-gate-table" ? pick(singles) : pick(level === 1 ? circuits.slice(0, 6) : circuits.slice(level === 2 ? 0 : 6));
+    const inputs = logicInputs(tree), rows = logicRows(tree), row = pick(rows), sequence = rows.map((r) => r.output).join("");
+    const details = { tree, inputs, rows };
+    if (id === "logic-gate-table" || id === "logic-circuit-table") {
+      const gate = id === "logic-gate-table";
+      const prompt = gate ? `Complete the Q column for the <strong>${tree.op}</strong> gate. Write the output bits from top to bottom.` : "Complete the Q column for this circuit. Write the output bits from top to bottom.";
+      return q2(prompt, [field2("Q column (top to bottom)", sequence, "bitstream")], [`Evaluate each input row from left to right through the circuit.`, `The Q outputs in table order are <code>${sequence}</code>.`], hint, (gate ? "" : diagram(tree)) + logicTable(tree, { blank: true }), details);
+    }
+    if (id === "logic-table-read") {
+      const pattern = inputs.map((name, i) => `${name} = ${row.bits[i]}`).join(", ");
+      return q2(`Use the truth table to find Q when <strong>${pattern}</strong>.`, [field2("Output Q", row.output)], [`Find the row with ${pattern}.`, `Its Q value is ${row.output}.`], hint, logicTable(tree), details);
+    }
+    if (id === "logic-expression-output") {
+      const pattern = inputs.map((name, i) => `${name} = ${row.bits[i]}`).join(", ");
+      return q2(`For <strong>${pattern}</strong>, evaluate Q = ${expression(tree)}.`, [field2("Output Q", row.output)], [`Substitute the given input bits into the expression.`, `Evaluate the inner operations first. Q = ${row.output}.`], hint, "", details);
+    }
+    if (id === "logic-circuit-expression") return { ...written2("Write the Boolean expression for output Q of this circuit. Use AQA notation.", [`Q = ${expression(tree)}`, "Check that your brackets and any overbar apply to the correct inputs or sub-expression."], hint, diagram(tree)), meta: details };
+    if (id === "logic-expression-circuit") return { ...written2(`On paper or a whiteboard, draw the circuit for Q = ${expression(tree)}. Label its inputs and Q.`, ["Use the corresponding gate for each operator, wired from the inputs towards Q.", "Compare your drawing with the model diagram."], hint), meta: details, solutionFigure: diagram(tree) };
+    const changed = logicNode("NOT", tree);
+    return { ...written2("Draw a modified circuit so that Q is the opposite of the original output for every input row. Label Q on your new circuit.", ["Connect the original output to a NOT gate, then label its output Q.", "Every original 0 becomes 1 and every original 1 becomes 0."], hint, diagram(tree)), meta: details, solutionFigure: diagram(changed) };
+  }
+
+  // bytesize-pages-v27/dist/teacher/bank.js
   var TOPICS = [
     ["bases", "3.3.1", "Number bases", "01", "What a bit pattern means", "#7260cf"],
     ["conversions", "3.3.2", "Base conversions", "⇄", "Binary, decimal and hexadecimal", "#536acb"],
@@ -240,54 +464,68 @@
     ["characters", "3.3.5", "Character encoding", "Aa", "ASCII, sequences and Unicode", "#ac5278"],
     ["images", "3.3.6", "Representing images", "▦", "Pixels, colour depth and bitmaps", "#3a8a67"],
     ["sound", "3.3.7", "Representing sound", "∿", "Sampling and file sizes", "#386f9c"],
-    ["compression", "3.3.8", "Data compression", "⋈", "Huffman coding and RLE", "#8a61ab"]
-  ].map(([id, ref, title, icon, desc, color]) => ({ id, ref, title, icon, desc, color }));
-  var skill = (id, topic, title, desc, objective, misconception) => ({ id, topic, title, desc, objective, misconception, ref: TOPICS.find((t) => t.id === topic).ref });
+    ["compression", "3.3.8", "Data compression", "⋈", "Huffman coding and RLE", "#8a61ab"],
+    ...SYSTEMS_TOPICS
+  ].map(([id, ref, title, icon, desc, color]) => ({ id, ref, title, icon, desc, color, unit: ref.startsWith("3.4.") ? "4" : "3" }));
+  var skill2 = (id, topic, title, desc, objective, misconception) => ({ id, topic, title, desc, objective, misconception, ref: TOPICS.find((t) => t.id === topic).ref });
   var SKILLS = [
-    skill("base-facts", "bases", "Recognise number bases", "Digits, base values and place value.", "Recognise base 2, base 10 and base 16.", "The base describes the number of available digits, not the number of digits in a value."),
-    skill("binary-data", "bases", "Why computers use binary", "Data, instructions and two states.", "Explain how two states can represent bits.", "Binary is used for instructions as well as stored data."),
-    skill("hex-purpose", "bases", "Why use hexadecimal?", "Compact, readable bit patterns.", "Explain why hexadecimal is useful to people.", "Hexadecimal is a convenient representation; the computer still uses binary."),
-    skill("bit-context", "bases", "One pattern, different meanings", "Interpret binary using its context.", "Explain why a bit pattern needs an interpretation.", "A bit pattern does not identify its own data type."),
-    skill("bin-dec", "conversions", "Binary → decimal", "Add the place values containing a 1.", "Convert an eight-bit binary value to decimal.", "The rightmost place has a value of 1, not 2."),
-    skill("dec-bin", "conversions", "Decimal → binary", "Build a complete eight-bit answer.", "Represent decimal values from 0 to 255 using eight bits.", "Keep the zero placeholders between the ones."),
-    skill("bin-hex", "conversions", "Binary → hexadecimal", "Split into two groups of four.", "Convert each four-bit group to a hexadecimal digit.", "Each hexadecimal digit represents four bits, not eight."),
-    skill("hex-bin", "conversions", "Hexadecimal → binary", "Expand each digit to four bits.", "Convert a two-digit hexadecimal number to eight bits.", "A leading zero inside a four-bit group is significant as a placeholder."),
-    skill("hex-dec", "conversions", "Hexadecimal → decimal", "Use the 16 and 1 place values.", "Convert a hexadecimal value in the range 00 to FF.", "A means 10; F means 15."),
-    skill("dec-hex", "conversions", "Decimal → hexadecimal", "Find the quotient and remainder.", "Convert a decimal value to two hexadecimal digits.", "A remainder of 10 is written A, not 10."),
-    skill("bits-bytes", "units", "Bits ↔ bytes", "Eight bits make one byte.", "Convert correctly between bits and bytes.", "b is a bit; B is a byte. Divide bits by eight to find bytes."),
-    skill("prefixes", "units", "Convert storage units", "kB, MB, GB and TB using 1,000.", "Apply the decimal prefixes required by AQA.", "Use 1,000 for these decimal prefixes, not 1,024."),
-    skill("compare-units", "units", "Compare capacities", "Put different units on the same scale.", "Compare quantities expressed in different storage units.", "Convert to a shared unit before comparing the numbers."),
-    skill("add-two", "arithmetic", "Add two binary numbers", "Column addition with safe eight-bit totals.", "Add two binary values without a ninth-bit carry.", "1 + 1 is 10 in binary: write 0 and carry 1."),
-    skill("add-three", "arithmetic", "Add three binary numbers", "Track each column and its incoming carry.", "Add three binary values with a maximum eight-bit answer.", "1 + 1 + 1 is 11: write 1 and carry 1."),
-    skill("shift-left", "arithmetic", "Logical shift left", "Move bits and fill the right with zeros.", "Apply a logical left shift within an eight-bit register.", "A bit shifted off the left edge is lost."),
-    skill("shift-right", "arithmetic", "Logical shift right", "Move bits and fill the left with zeros.", "Apply a logical right shift within an eight-bit register.", "Logical shifts always fill vacated positions with zeros."),
-    skill("shift-effect", "arithmetic", "Explain a shift’s effect", "Powers of two and discarded bits.", "Relate logical shifts to multiplication and whole-number division.", "A left shift only gives the expected multiplication when no 1 bits are lost."),
-    skill("encode-text", "characters", "Characters → ASCII codes", "Use a supplied character table.", "Encode a short text as decimal or binary ASCII codes.", "Upper-case and lower-case letters have different codes."),
-    skill("ascii-word-size", "characters", "Word file size · 7-bit ASCII", "Count letters, then multiply by seven.", "Calculate the size in bits of a 3–6 letter word stored using 7-bit ASCII.", "Each character uses seven bits in this question, not eight. Exclude metadata and padding."),
-    skill("ascii-word-decimal", "characters", "Word → decimal ASCII", "Convert 3–6 letters into decimal character codes.", "Encode a 3–6 letter word using the supplied ASCII group reference.", "Keep the letter case and the order of the characters."),
-    skill("ascii-word-binary", "characters", "Word → 7-bit ASCII binary", "Write one seven-bit code for each of 3–6 letters.", "Encode a 3–6 letter word as seven-bit binary ASCII codes.", "Each character needs exactly seven bits; do not add an eighth bit."),
-    skill("decode-text", "characters", "ASCII codes → characters", "Decode a sequence with a table.", "Read decimal and binary character codes.", "Digits such as 7 have character codes; that code is not the number 7."),
-    skill("code-sequences", "characters", "Use character sequences", "Upper case, lower case and digits.", "Calculate neighbouring codes within a character group.", "The gap between A and a is not part of one continuous alphabet."),
-    skill("unicode", "characters", "ASCII and Unicode", "Character sets and wider language support.", "Explain Unicode’s purpose and its relationship to ASCII.", "Unicode uses the same codes as ASCII from 0 to 127; it is not always a fixed 16-bit format."),
-    skill("pixels", "images", "Pixels and image dimensions", "Picture elements, width and height.", "Explain how a bitmap is made from pixels.", "Image dimensions are width × height; count both dimensions."),
-    skill("colour-depth", "images", "Colour depth", "Bits per pixel and possible colours.", "Connect colour depth to the range of pixel values.", "Colour depth counts bits for each pixel, not bytes for the whole image."),
-    skill("image-size", "images", "Calculate bitmap file size", "Width × height × colour depth.", "Calculate raw bitmap sizes in bits and bytes.", "Divide by eight only when converting bits to bytes. Ignore metadata unless stated."),
-    skill("bitmap-encode", "images", "Bitmap → binary data", "Read pixels row by row using a key.", "Encode a simple monochrome bitmap.", "Use the stated colour key and reset at the start of each row."),
-    skill("bitmap-decode", "images", "Binary data → bitmap", "Turn each bit into a pixel.", "Draw a simple bitmap from its binary data.", "A zero is still a pixel; it is not a gap."),
-    skill("image-change", "images", "Changes to image size", "Explain and calculate the impact.", "Relate pixel count and colour depth to file size.", "Doubling both width and height quadruples the number of pixels."),
-    skill("sampling", "sound", "How sound is sampled", "Amplitude, sampling rate and resolution.", "Describe analogue sound represented by digital samples.", "Sampling rate is samples per second; sample resolution is bits per sample."),
-    skill("sound-size", "sound", "Calculate sound file size", "Rate × resolution × duration.", "Calculate raw sound size using the AQA formula.", "Convert minutes to seconds, and bits to bytes when requested."),
-    skill("sound-change", "sound", "Change the sound settings", "Predict size and representation effects.", "Explain the effect of changing rate or sample resolution.", "Higher sample resolution measures amplitude more precisely; it does not make the sound louder."),
-    skill("sound-missing", "sound", "Find a missing sound value", "Rearrange the file-size calculation.", "Find rate, resolution or duration from the other values.", "Keep file size in bits when using the rate × resolution × seconds formula."),
-    skill("compression-purpose", "compression", "Explain data compression", "Storage, transfer and exact recovery.", "Explain reasons for reducing the bits needed to store data.", "Compression is about the representation, not simply deleting meaningful content."),
-    skill("huffman-read", "compression", "Read a Huffman tree", "Follow the 0 and 1 branches.", "Read a character code from a labelled tree.", "Start at the root for every character."),
-    skill("huffman-explain", "compression", "Why Huffman coding works", "Frequency, short codes and exact recovery.", "Explain how variable-length codes can reduce storage.", "The most frequent characters should not be given the longest codes."),
-    skill("huffman-encode", "compression", "Encode using Huffman", "Join variable-length character codes.", "Encode a message using its supplied tree.", "Do not assume all characters use the same number of bits."),
-    skill("huffman-decode", "compression", "Decode a Huffman message", "Return to the root after each leaf.", "Decode an encoded bitstream using its supplied tree.", "A code ends when a leaf is reached, not after a fixed number of bits."),
-    skill("huffman-size", "compression", "Calculate Huffman savings", "Frequency × code length, then compare ASCII.", "Calculate compressed size, ASCII size and the bits saved.", "Count bits, not the decimal value of the bitstream. The ASCII width is stated in the question."),
-    skill("rle-encode", "compression", "Encode using RLE", "Store consecutive count/value pairs.", "Express a binary row using run length encoding.", "Only combine adjacent identical values; do not merge separated runs."),
-    skill("rle-decode", "compression", "Decode using RLE", "Expand every frequency/data pair.", "Reconstruct binary data from count/value pairs.", "The first value in a pair is the count; the second is the data value.")
+    skill2("base-facts", "bases", "Recognise number bases", "Digits, base values and place value.", "Recognise base 2, base 10 and base 16.", "The base describes the number of available digits, not the number of digits in a value."),
+    skill2("binary-data", "bases", "Why computers use binary", "Data, instructions and two states.", "Explain how two states can represent bits.", "Binary is used for instructions as well as stored data."),
+    skill2("hex-purpose", "bases", "Why use hexadecimal?", "Compact, readable bit patterns.", "Explain why hexadecimal is useful to people.", "Hexadecimal is a convenient representation; the computer still uses binary."),
+    skill2("bit-context", "bases", "One pattern, different meanings", "Interpret binary using its context.", "Explain why a bit pattern needs an interpretation.", "A bit pattern does not identify its own data type."),
+    skill2("bin-dec", "conversions", "Binary → decimal", "Add the place values containing a 1.", "Convert an eight-bit binary value to decimal.", "The rightmost place has a value of 1, not 2."),
+    skill2("dec-bin", "conversions", "Decimal → binary", "Build a complete eight-bit answer.", "Represent decimal values from 0 to 255 using eight bits.", "Keep the zero placeholders between the ones."),
+    skill2("bin-hex", "conversions", "Binary → hexadecimal", "Split into two groups of four.", "Convert each four-bit group to a hexadecimal digit.", "Each hexadecimal digit represents four bits, not eight."),
+    skill2("hex-bin", "conversions", "Hexadecimal → binary", "Expand each digit to four bits.", "Convert a two-digit hexadecimal number to eight bits.", "A leading zero inside a four-bit group is significant as a placeholder."),
+    skill2("hex-dec", "conversions", "Hexadecimal → decimal", "Use the 16 and 1 place values.", "Convert a hexadecimal value in the range 00 to FF.", "A means 10; F means 15."),
+    skill2("dec-hex", "conversions", "Decimal → hexadecimal", "Find the quotient and remainder.", "Convert a decimal value to two hexadecimal digits.", "A remainder of 10 is written A, not 10."),
+    skill2("bits-bytes", "units", "Bits ↔ bytes", "Eight bits make one byte.", "Convert correctly between bits and bytes.", "b is a bit; B is a byte. Divide bits by eight to find bytes."),
+    skill2("prefixes", "units", "Convert storage units", "kB, MB, GB and TB using 1,000.", "Apply the decimal prefixes required by AQA.", "Use 1,000 for these decimal prefixes, not 1,024."),
+    skill2("compare-units", "units", "Compare capacities", "Put different units on the same scale.", "Compare quantities expressed in different storage units.", "Convert to a shared unit before comparing the numbers."),
+    skill2("add-two", "arithmetic", "Add two binary numbers", "Column addition with safe eight-bit totals.", "Add two binary values without a ninth-bit carry.", "1 + 1 is 10 in binary: write 0 and carry 1."),
+    skill2("add-three", "arithmetic", "Add three binary numbers", "Track each column and its incoming carry.", "Add three binary values with a maximum eight-bit answer.", "1 + 1 + 1 is 11: write 1 and carry 1."),
+    skill2("shift-left", "arithmetic", "Logical shift left", "Move bits and fill the right with zeros.", "Apply a logical left shift within an eight-bit register.", "A bit shifted off the left edge is lost."),
+    skill2("shift-right", "arithmetic", "Logical shift right", "Move bits and fill the left with zeros.", "Apply a logical right shift within an eight-bit register.", "Logical shifts always fill vacated positions with zeros."),
+    skill2("shift-effect", "arithmetic", "Explain a shift’s effect", "Powers of two and discarded bits.", "Relate logical shifts to multiplication and whole-number division.", "A left shift only gives the expected multiplication when no 1 bits are lost."),
+    skill2("encode-text", "characters", "Characters → ASCII codes", "Use a supplied character table.", "Encode a short text as decimal or binary ASCII codes.", "Upper-case and lower-case letters have different codes."),
+    skill2("ascii-word-size", "characters", "Word file size · 7-bit ASCII", "Count letters, then multiply by seven.", "Calculate the size in bits of a 3–6 letter word stored using 7-bit ASCII.", "Each character uses seven bits in this question, not eight. Exclude metadata and padding."),
+    skill2("ascii-word-decimal", "characters", "Word → decimal ASCII", "Convert 3–6 letters into decimal character codes.", "Encode a 3–6 letter word using the supplied ASCII group reference.", "Keep the letter case and the order of the characters."),
+    skill2("ascii-word-binary", "characters", "Word → 7-bit ASCII binary", "Write one seven-bit code for each of 3–6 letters.", "Encode a 3–6 letter word as seven-bit binary ASCII codes.", "Each character needs exactly seven bits; do not add an eighth bit."),
+    skill2("decode-text", "characters", "ASCII codes → characters", "Decode a sequence with a table.", "Read decimal and binary character codes.", "Digits such as 7 have character codes; that code is not the number 7."),
+    skill2("code-sequences", "characters", "Use character sequences", "Upper case, lower case and digits.", "Calculate neighbouring codes within a character group.", "The gap between A and a is not part of one continuous alphabet."),
+    skill2("unicode", "characters", "ASCII and Unicode", "Character sets and wider language support.", "Explain Unicode’s purpose and its relationship to ASCII.", "Unicode uses the same codes as ASCII from 0 to 127; it is not always a fixed 16-bit format."),
+    skill2("pixels", "images", "Pixels and image dimensions", "Picture elements, width and height.", "Explain how a bitmap is made from pixels.", "Image dimensions are width × height; count both dimensions."),
+    skill2("colour-depth", "images", "Colour depth", "Bits per pixel and possible colours.", "Connect colour depth to the range of pixel values.", "Colour depth counts bits for each pixel, not bytes for the whole image."),
+    skill2("image-size", "images", "Calculate bitmap file size", "Width × height × colour depth.", "Calculate raw bitmap sizes in bits and bytes.", "Divide by eight only when converting bits to bytes. Ignore metadata unless stated."),
+    skill2("bitmap-encode", "images", "Bitmap → binary data", "Read pixels row by row using a key.", "Encode a simple monochrome bitmap.", "Use the stated colour key and reset at the start of each row."),
+    skill2("bitmap-decode", "images", "Binary data → bitmap", "Turn each bit into a pixel.", "Draw a simple bitmap from its binary data.", "A zero is still a pixel; it is not a gap."),
+    skill2("image-change", "images", "Changes to image size", "Explain and calculate the impact.", "Relate pixel count and colour depth to file size.", "Doubling both width and height quadruples the number of pixels."),
+    skill2("sampling", "sound", "How sound is sampled", "Amplitude, sampling rate and resolution.", "Describe analogue sound represented by digital samples.", "Sampling rate is samples per second; sample resolution is bits per sample."),
+    skill2("sound-size", "sound", "Calculate sound file size", "Rate × resolution × duration.", "Calculate raw sound size using the AQA formula.", "Convert minutes to seconds, and bits to bytes when requested."),
+    skill2("sound-change", "sound", "Change the sound settings", "Predict size and representation effects.", "Explain the effect of changing rate or sample resolution.", "Higher sample resolution measures amplitude more precisely; it does not make the sound louder."),
+    skill2("sound-missing", "sound", "Find a missing sound value", "Rearrange the file-size calculation.", "Find rate, resolution or duration from the other values.", "Keep file size in bits when using the rate × resolution × seconds formula."),
+    skill2("compression-purpose", "compression", "Explain data compression", "Storage, transfer and exact recovery.", "Explain reasons for reducing the bits needed to store data.", "Compression is about the representation, not simply deleting meaningful content."),
+    skill2("huffman-read", "compression", "Read a Huffman tree", "Follow the 0 and 1 branches.", "Read a character code from a labelled tree.", "Start at the root for every character."),
+    skill2("huffman-explain", "compression", "Why Huffman coding works", "Frequency, short codes and exact recovery.", "Explain how variable-length codes can reduce storage.", "The most frequent characters should not be given the longest codes."),
+    skill2("huffman-encode", "compression", "Encode using Huffman", "Join variable-length character codes.", "Encode a message using its supplied tree.", "Do not assume all characters use the same number of bits."),
+    skill2("huffman-decode", "compression", "Decode a Huffman message", "Return to the root after each leaf.", "Decode an encoded bitstream using its supplied tree.", "A code ends when a leaf is reached, not after a fixed number of bits."),
+    skill2("huffman-size", "compression", "Calculate Huffman savings", "Frequency × code length, then compare ASCII.", "Calculate compressed size, ASCII size and the bits saved.", "Count bits, not the decimal value of the bitstream. The ASCII width is stated in the question."),
+    skill2("rle-encode", "compression", "Encode using RLE", "Store consecutive count/value pairs.", "Express a binary row using run length encoding.", "Only combine adjacent identical values; do not merge separated runs."),
+    skill2("rle-decode", "compression", "Decode using RLE", "Expand every frequency/data pair.", "Reconstruct binary data from count/value pairs.", "The first value in a pair is the count; the second is the data value."),
+    ...SYSTEMS_SKILLS.map((args) => skill2(...args))
   ];
+  var UNIT3_IDS = Object.freeze(SKILLS.filter((s) => s.ref.startsWith("3.3.")).map((s) => s.id));
+  var TOPIC_GUIDES = {
+    ...SYSTEMS_GUIDES,
+    bases: ["Binary uses two digits, 0 and 1; decimal uses ten; hexadecimal uses sixteen, 0–9 and A–F.", "Computers store data and instructions as bit patterns. Two distinguishable electronic states can represent the two bit values.", "Interpretation depends on the encoding and context. The same bits can be read as a number, a character or part of an image or sound.", "A hexadecimal digit represents four bits, giving people a shorter representation of long binary patterns."],
+    conversions: ["Eight bits represent values from 0 to 255. The eight place values are 128, 64, 32, 16, 8, 4, 2 and 1.", "To read binary, add the place values containing 1. To write binary, select the place values that sum to the decimal value.", "Convert between binary and hexadecimal in groups of four bits. Use leading zero placeholders within a group.", "For a two-digit hexadecimal value, multiply the left digit’s value by 16 and add the right digit’s value. A–F represent 10–15."],
+    units: ["A bit is one binary digit; a byte is eight bits. The symbols b and B have different meanings.", "The decimal prefixes in this unit use factors of 1,000: kB, MB, GB and TB.", "To convert to a smaller byte unit, multiply by 1,000 for each step; to a larger unit, divide. Convert bytes to bits separately using eight.", "Put quantities in the same unit before comparing them."],
+    arithmetic: ["In binary addition, 1 + 1 = 10; 1 + 1 + 1 = 11. Write the units bit and carry to the next column.", "These generators use at most three values, at most eight bits per value, a maximum total of three in each full column and no carry beyond bit eight.", "A logical shift moves all bits and fills the vacated positions with zeros. Bits that leave the register are discarded.", "A left shift by n places multiplies by 2^n only if no 1 bits are lost. A logical right shift gives whole-number division by 2^n, discarding any remainder."],
+    characters: ["A character set assigns numeric codes to characters so they can be stored as binary.", "7-bit ASCII has 128 codes. Capital letters, lower-case letters and digits each form their own sequential groups.", "A = 65, a = 97 and the character 0 = 48. Add the character’s offset within the group to calculate its code.", "For a word stored as 7-bit ASCII, data size in bits = number of characters × 7. These word-size questions exclude metadata and padding. Write each binary character code using exactly seven bits.", "Unicode includes characters from many writing systems and special symbols. Its codes 0–127 match ASCII. No fixed Unicode bit width or UTF variant is assumed here."],
+    images: ["A pixel is one picture element. A bitmap stores an image as a grid of pixel values.", "Image dimensions are width × height in pixels. Colour depth is the number of bits used for each pixel.", "With d bits per pixel, there are up to 2^d different pixel values or colours.", "Raw size in bits = width × height × colour depth. Divide by eight for bytes. These questions exclude metadata.", "Increasing pixel count or colour depth increases raw storage size. Doubling both dimensions quadruples pixel count. Use the supplied colour key when reading binary pixel data."],
+    sound: ["Sound is analogue; a digital recording stores a sequence of measurements of its amplitude.", "A sample is the amplitude measured at one point in time. Sampling rate is the number of samples each second, measured in Hz.", "Sample resolution is the number of bits used for each sample. More bits allow more distinct amplitude values and a more precise measurement.", "A higher sampling rate takes more frequent measurements, following changes in the signal more closely.", "Raw size in bits = sampling rate × sample resolution × duration in seconds. These questions use one stream of samples and exclude metadata."],
+    compression: ["Compression reduces the number of bits needed to represent data. Smaller files use less storage and can transfer more quickly over the same connection.", "Huffman coding uses variable-length character codes. Frequent characters receive shorter codes, reducing the weighted total of frequency × code length.", "A Huffman tree is built by repeatedly combining the two least frequent available nodes. A character’s code is its path from the root to its leaf using the labelled branches.", "Decode by following bits to a leaf, writing that character and returning to the root. No complete character code is a prefix of another.", "For a message, Huffman size = the sum of frequency × code length. Compare with characters × stated ASCII width; subtract to find the bits saved. These exercises exclude the tree and metadata.", "RLE replaces consecutive identical values with count/value pairs. It works well for long repeated runs; runs reset when the value changes. Exact original data can be reconstructed from both of these encodings."]
+  };
   function rng(seed) {
     let a = Number(seed) >>> 0;
     return () => {
@@ -331,13 +569,13 @@
     walk(root, "");
     return { root, codes, counts, encoded: [...text].map((c) => codes[c]).join(""), text };
   }
-  function treeFigure(data) {
+  function treeFigure(data, { leafSpacing = 88 } = {}) {
     let leaf = 0, depth = 0;
     const nodes = [], edges = [];
     function layout(n, d) {
       const o = { n, y: 34 + d * 74 };
       depth = Math.max(depth, d);
-      if (n.c !== void 0) o.x = 42 + leaf++ * 88;
+      if (n.c !== void 0) o.x = 42 + leaf++ * leafSpacing;
       else {
         const l = layout(n.left, d + 1), r = layout(n.right, d + 1);
         o.x = (l.x + r.x) / 2;
@@ -347,7 +585,7 @@
       return o;
     }
     layout(data.root, 0);
-    const w = Math.max(180, leaf * 88), h = depth * 74 + 74;
+    const w = Math.max(180, 88 + (leaf - 1) * leafSpacing), h = depth * 74 + 74;
     return `<svg class="huffman-tree" viewBox="0 0 ${w} ${h}" role="img" aria-label="Huffman tree. Each node shows its frequency; left branches are 0 and right branches are 1.">${edges.map(([a, b, v]) => `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="currentColor" stroke-width="1.6"/><text x="${(a.x + b.x) / 2 + (v ? 9 : -9)}" y="${(a.y + b.y) / 2}" text-anchor="middle" class="edge-label">${v}</text>`).join("")}${nodes.map(({ n, x, y }) => `<circle cx="${x}" cy="${y}" r="20" fill="${n.c !== void 0 ? "#ede8ff" : "#f4f6fa"}" stroke="#8e81b3"/><text x="${x}" y="${y + 5}" text-anchor="middle">${n.f}</text>${n.c !== void 0 ? `<text class="leaf-label" x="${x}" y="${y + 39}" text-anchor="middle">${n.c === " " ? "space" : esc(n.c)}</text>` : ""}`).join("")}</svg>`;
   }
   function samplingFigure(rate = 8) {
@@ -378,7 +616,9 @@
     const rand = rng(seed), int = (a, b) => Math.floor(rand() * (b - a + 1)) + a, pick = (a) => a[int(0, a.length - 1)];
     const n = int(level === 1 ? 0 : 16, level === 1 ? 63 : 255), bits = bin(n), hx = hex(n);
     let r;
-    if (skillId === "base-facts") {
+    if (sk.ref.startsWith("3.4.")) {
+      r = makeSystemsQuestion(skillId, level, pick, { q, written, field });
+    } else if (skillId === "base-facts") {
       const b = pick([2, 10, 16]), digits = b === 2 ? "0 and 1" : b === 10 ? "0 to 9" : "0 to 9 and A to F";
       r = q(`State the base of <strong>${b === 2 ? "binary" : b === 10 ? "decimal" : "hexadecimal"}</strong>. Then state how many different digit symbols it uses.`, [field("Base", b), field("Number of digit symbols", b)], [`The base is ${b}.`, `There are ${b} symbols: ${digits}.`], "The base tells you how many different digit symbols are available.");
       if (level === 3) r = written(`A learner says “${b === 2 ? "10 in binary means ten" : b === 16 ? "10 in hexadecimal means ten" : "10 has the same value in every number base"}”. Explain the error.`, ["The place values depend on the base.", "10 represents one group of the base and zero units: binary 10 is decimal 2; hexadecimal 10 is decimal 16."], "Consider the value of the left-hand place in a two-digit number.");
@@ -504,7 +744,8 @@
       const context = pick(["a school uploading teaching recordings over a slow connection", "a phone storing many photographs with limited space", "a website delivering image files to visitors", "a school archiving many text documents"]);
       r = written(`Explain two benefits of compressing data for ${context}.`, ["Compression represents the data using fewer bits.", "Smaller files need less storage space.", "With the same connection speed, fewer bits can be transferred in less time and use less data."], "Link the reduction in bits to this situation.");
     } else if (skillId.startsWith("huffman-")) {
-      const chosen = chooseEncodingWord(rand, level === 1 ? [3, 4] : [3, 4, 5, 6], options), text = chosen.word.toUpperCase(), data = huffmanData(text), chars = Object.keys(data.codes), target = pick(chars), message = text, encoded = [...message].map((c) => data.codes[c]).join(""), figure = treeFigure(data);
+      const repeated = !options.legacyHuffman, lengths = level === 1 && (!options.preferComputing || !repeated) ? [3, 4] : [3, 4, 5, 6];
+      const chosen = chooseEncodingWord(rand, lengths, { ...options, requireRepeatedLetter: repeated }), text = chosen.word.toUpperCase(), data = huffmanData(text), chars = Object.keys(data.codes), target = pick(chars), message = text, encoded = [...message].map((c) => data.codes[c]).join(""), figure = treeFigure(data);
       if (skillId === "huffman-read") r = q(`Using this Huffman tree, write the code for <strong>${target}</strong>.`, [field("Huffman code", data.codes[target], "bitstream")], [`Start at the root, which has frequency ${text.length}.`, `Follow branches to the leaf labelled ${target}; record each 0 or 1.`, `The code is ${data.codes[target]}.`], "A character code is the path from the root to that character’s leaf.", figure, { data });
       if (skillId === "huffman-explain") {
         const sorted = chars.toSorted((a, b) => data.counts[b] - data.counts[a]), common = sorted[0], rare = sorted.at(-1);
@@ -517,6 +758,7 @@
         r = q(`The text <strong>${text}</strong> uses these Huffman codes. Calculate the compressed size, the size using <strong>7-bit ASCII</strong>, and the bits saved. Count only the message data; ignore the tree and metadata.`, [field("Huffman size (bits)", compressed), field("ASCII size (bits)", original), field("Bits saved", saved)], [...chars.map((c) => `${c}: ${data.counts[c]} occurrences × ${data.codes[c].length} bits = ${data.counts[c] * data.codes[c].length} bits.`), `Add the contributions: ${compressed} bits.`, `ASCII: ${text.length} characters × 7 = ${original} bits.`, `Saving: ${original} − ${compressed} = ${saved} bits.`], "Multiply each character’s frequency by its own code length, then add.", table(["Character", "Frequency", "Code", "Code length"], rows), { data, compressed, original, saved });
       }
       r.meta = { ...r.meta, word: text, wordCategory: chosen.wordCategory };
+      if (!repeated) r.legacyHuffman = true;
     } else if (skillId === "rle-encode" || skillId === "rle-decode") {
       let runs = Array.from({ length: level === 1 ? 3 : 5 }, (_, i) => ({ count: int(1, 6), value: i % 2 }));
       if (rand() < 0.5) runs = runs.map((x) => ({ ...x, value: 1 - x.value }));
@@ -525,7 +767,7 @@
       else r = q(`Decode these RLE count/value pairs to one binary row.${big(runs.map((x) => `(${x.count}, ${x.value})`).join(" "))}`, [field("Binary row", data, "bitstream")], [...runs.map((x) => `(${x.count}, ${x.value}) → ${String(x.value).repeat(x.count)}.`), `Join the runs: ${data}.`], "Repeat the second value as many times as the first value states.", "", { runs, data });
     }
     if (!r) throw Error("Generator missing: " + skillId);
-    return { ...r, id: `${skillId}-${level}-${seed}`, skill: skillId, level, seed, objective: sk.objective, misconception: sk.misconception, title: sk.title, ref: sk.ref };
+    return { ...r, id: `${skillId}-${level}-${seed}${skillId.startsWith("huffman-") && !r.legacyHuffman ? "-h2" : ""}`, skill: skillId, level, seed, objective: sk.objective, misconception: sk.misconception, title: sk.title, ref: sk.ref };
   }
   function checkField(f, value) {
     const raw = String(value ?? "").trim();
@@ -544,7 +786,7 @@
     return { correct, empty: false, message: correct ? "Correct. Well done." : f.kind === "hex" ? "Check both hexadecimal digits." : f.kind === "binary" || f.kind === "addition" ? "Check the eight bits and any zero placeholders." : "Check your method and try again." };
   }
 
-  // dist/student/practice-questions.js
+  // bytesize-pages-v27/dist/student/practice-questions.js
   var GROUPS = {
     characters: { title: "Character encoding practice", prefix: "characterpractice", skills: SKILLS.filter((s) => s.topic === "characters") },
     rle: { title: "Run length encoding practice", prefix: "rle", skills: SKILLS.filter((s) => ["rle-encode", "rle-decode"].includes(s.id)) }
@@ -558,6 +800,21 @@
     }
     return result;
   };
+  var FULL_PRACTICE_TOPICS = [
+    { id: "images", label: "Images", skills: SKILLS.filter((s) => s.topic === "images") },
+    { id: "sound", label: "Sound", skills: SKILLS.filter((s) => s.topic === "sound") },
+    { id: "compression", label: "Compression", skills: SKILLS.filter((s) => s.topic === "compression") },
+    { id: "ascii", label: "ASCII", skills: SKILLS.filter((s) => s.topic === "characters" && s.id !== "unicode") }
+  ];
+  function createFullPracticeGenerator(seed, { legacyHuffman = false } = {}) {
+    const random = rng(seed), decks = /* @__PURE__ */ new Map();
+    return (id) => {
+      const topic = FULL_PRACTICE_TOPICS.find((t) => t.id === id);
+      if (!topic) return null;
+      if (!decks.get(id)?.length) decks.set(id, shuffle(topic.skills, random));
+      return makeQuestion(decks.get(id).pop().id, 1 + Math.floor(random() * 3), Math.floor(random() * 4294967296), { legacyHuffman });
+    };
+  }
   function normaliseSettings(group, options = {}) {
     const config = GROUPS[group];
     if (!config) throw new Error("Unknown practice group.");
@@ -574,12 +831,12 @@
     let deck = [];
     return Array.from({ length: settings.count }, (_, i) => {
       if (!deck.length) deck = shuffle(skills, random);
-      const skill2 = deck.pop();
-      return makeQuestion(skill2.id, levels[i % levels.length], Math.floor(random() * 4294967296));
+      const skill3 = deck.pop();
+      return makeQuestion(skill3.id, levels[i % levels.length], Math.floor(random() * 4294967296));
     });
   }
   function createResponse(question) {
-    return { question, answers: question.fields.map(() => ""), written: "", results: [], checked: false, complete: false, feedback: "", tone: "", working: false };
+    return { question, answers: question.fields.map((field2) => field2.kind === "bitmap" ? "0".repeat(question.meta.w * question.meta.h) : ""), written: "", results: [], checked: false, complete: false, feedback: "", tone: "", working: false };
   }
   function resetFeedback(record) {
     record.results = [];
@@ -619,28 +876,128 @@
       return `<button type="button" class="bank-bit" data-bank-bit="${i}" data-value="${bit}" aria-label="Bit ${i + 1}, currently ${bit}" aria-pressed="${bit === "1"}">${bit}</button>`;
     }).join("")}</div></div>`;
   }
-  function questionHTML(record, index, group) {
-    const q2 = record.question, prefix = `bank-${group}-${index}`;
-    const methodKey = q2.skill === "encode-text" && q2.level === 3 ? "ascii-word-binary" : q2.skill;
-    const method = record.working ? `<div class="bank-help"><div class="student-method-body">${globalThis.BytesizeMethods.get(methodKey)}</div></div>` : "";
-    return `<div class="q-top"><span class="badge">QUESTION ${String(index + 1).padStart(2, "0")}</span><small>${q2.fields.length ? "Exact answer" : "Written explanation"}</small></div><h3>${esc(q2.title)}</h3><div class="bank-prompt">${q2.prompt}</div>${q2.figure ? `<div class="bank-figure">${q2.figure}</div>` : ""}${rleEditor(record)}${q2.fields.length ? q2.fields.map((field2, i) => fieldHTML(record, field2, i, prefix)).join("") : `<div class="bank-field"><label for="${prefix}-written">Your explanation</label><textarea id="${prefix}-written" data-bank-written rows="5">${esc(record.written)}</textarea><span class="bank-print-workspace" aria-hidden="true"></span></div>`}<div class="q-actions">${q2.fields.length ? actionButton("check", "Check answer", true) : ""}${actionButton("working", record.working ? "Hide worked method" : "Worked method")}${actionButton("new", "New question")}</div><p class="feedback ${record.tone}" role="status">${esc(record.feedback)}</p>${method}`;
+  function methodForBankQuestion(q2) {
+    const variants = {
+      "pixels": q2.level === 3 ? "bitmap-representation" : "bitmap-pixels",
+      "colour-depth": q2.level === 3 ? "bitmap-depth" : "unit-values",
+      "image-size": q2.level === 1 ? "bitmap-total" : "bitmap-bytes",
+      "image-change": "bitmap-change",
+      "bitmap-decode": "bitmap-draw",
+      "compression-purpose": "compression-benefits",
+      "huffman-explain": "huffman-principle",
+      "huffman-size": "huffman-savings",
+      "sampling": "sound-sampling",
+      "sound-missing": { "Sampling rate (Hz)": "sound-rate-find", "Resolution (bits per sample)": "sound-resolution-find", "Duration (seconds)": "sound-duration" }[q2.fields[0]?.label]
+    };
+    return q2.skill === "encode-text" && q2.level === 3 ? "ascii-word-binary" : variants[q2.skill] || q2.skill;
   }
-  function practiceHTML(group, settings, records) {
+  function questionHTML(record, index, group, { topicLabel = "", allowNew = true } = {}) {
+    const q2 = record.question, prefix = `bank-${group}-${index}`;
+    const method = record.working ? `<div class="bank-help"><div class="student-method-body">${globalThis.BytesizeMethods.get(methodForBankQuestion(q2))}</div></div>` : "";
+    const figure = q2.skill === "bitmap-encode" ? `<div class="bank-figure" role="img" aria-label="${bitmapDescription(q2.meta)}">${q2.figure}</div>` : q2.figure ? `<div class="bank-figure">${q2.figure}</div>` : "";
+    const response = q2.fields[0]?.kind === "bitmap" ? bitmapFigure(record.answers[0], q2.meta.w, true, prefix) : q2.fields.length ? q2.fields.map((field2, i) => fieldHTML(record, field2, i, prefix)).join("") : `<div class="bank-field"><label for="${prefix}-written">Your explanation</label><textarea id="${prefix}-written" data-bank-written rows="5">${esc(record.written)}</textarea><span class="bank-print-workspace" aria-hidden="true"></span></div>`;
+    return `<div class="q-top"><span class="badge">QUESTION ${String(index + 1).padStart(2, "0")}</span><small>${topicLabel ? esc(topicLabel) + " · " : ""}${q2.fields.length ? "Exact answer" : "Written explanation"}</small></div><h3>${esc(q2.title)}</h3><div class="bank-prompt">${q2.prompt}</div>${figure}${rleEditor(record)}${response}<div class="q-actions">${q2.fields.length ? actionButton("check", "Check answer", true) : ""}${actionButton("working", record.working ? "Hide worked method" : "Worked method")}${allowNew ? actionButton("new", "New question") : ""}</div><p class="feedback ${record.tone}" role="status">${esc(record.feedback)}</p>${method}`;
+  }
+  function bitmapDescription({ w, h, data }) {
+    const rows = Array.from({ length: h }, (_, i) => `Row ${i + 1}: ${[...data.slice(i * w, (i + 1) * w)].map((bit) => bit === "0" ? "white" : "dark").join(", ")}.`);
+    return `Bitmap: ${rows.join(" ")} Key: 0 is white, 1 is dark.`;
+  }
+  function practiceHTML(group, settings, records2) {
     const config = GROUPS[group];
-    return `<div class="set-head bank-heading"><div><h2>${config.title}</h2><p>Choose a question type or practise a mix.</p></div><div class="actions"><button class="button outline" type="button" data-bank-action="print">Print worksheet</button></div></div><div class="bank-settings"><label>Question type<select data-bank-type><option value="all" ${settings.type === "all" ? "selected" : ""}>Mixed question types</option>${config.skills.map((skill2) => `<option value="${skill2.id}" ${settings.type === skill2.id ? "selected" : ""}>${esc(skill2.title)}</option>`).join("")}</select></label><label>How many questions?<select data-bank-count>${COUNTS.map((count) => `<option ${settings.count === count ? "selected" : ""}>${count}</option>`).join("")}</select></label><button class="button primary" type="button" data-bank-action="generate">Generate new questions</button></div><p class="bank-print-name">Name: ____________________ Class: __________ Date: __________</p><div class="questions bank-questions">${records.map((record, i) => `<article class="question bank-question" data-bank-index="${i}">${questionHTML(record, i, group)}</article>`).join("")}</div><div class="bank-controls">${records.some((record) => record.question.fields.length) ? '<button class="button primary" type="button" data-bank-action="check-all">Check exact answers</button>' : ""}<button class="button outline" type="button" data-bank-action="clear">Clear answers</button><p class="bank-summary" role="status" aria-live="polite"></p></div>`;
+    return `<div class="set-head bank-heading"><div><h2>${config.title}</h2><p>Choose a question type or practise a mix.</p></div><div class="actions"><button class="button outline" type="button" data-bank-action="print">Print worksheet</button></div></div><div class="bank-settings"><label>Question type<select data-bank-type><option value="all" ${settings.type === "all" ? "selected" : ""}>Mixed question types</option>${config.skills.map((skill3) => `<option value="${skill3.id}" ${settings.type === skill3.id ? "selected" : ""}>${esc(skill3.title)}</option>`).join("")}</select></label><label>How many questions?<select data-bank-count>${COUNTS.map((count) => `<option ${settings.count === count ? "selected" : ""}>${count}</option>`).join("")}</select></label><button class="button primary" type="button" data-bank-action="generate">Generate new questions</button></div><p class="bank-print-name">Name: ____________________ Class: __________ Date: __________</p><div class="questions bank-questions">${records2.map((record, i) => `<article class="question bank-question" data-bank-index="${i}">${questionHTML(record, i, group)}</article>`).join("")}</div><div class="bank-controls">${records2.some((record) => record.question.fields.length) ? '<button class="button primary" type="button" data-bank-action="check-all">Check exact answers</button>' : ""}<button class="button outline" type="button" data-bank-action="clear">Clear answers</button><p class="bank-summary" role="status" aria-live="polite"></p></div>`;
   }
   function freshSeed(previous) {
     let seed = crypto.getRandomValues(new Uint32Array(1))[0];
     if (seed === previous) seed = seed + 1 >>> 0;
     return seed;
   }
+  function bindBankCards(root, { getRecord, redraw, onChange = () => {
+  }, onAction = () => {
+  }, onNew }) {
+    const indexOf = (card) => Number(card.dataset.bankIndex);
+    function edit(card, record) {
+      resetFeedback(record);
+      const feedback = card.querySelector(".feedback");
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      card.querySelectorAll("[data-bank-answer]").forEach((input) => input.removeAttribute("aria-invalid"));
+      const bits = record.answers[0]?.replace(/\s/g, "") || "";
+      card.querySelectorAll("[data-bank-bit]").forEach((button, i) => {
+        const bit = bits[i] === "1" ? "1" : "0";
+        button.dataset.value = bit;
+        button.textContent = bit;
+        button.setAttribute("aria-label", `Bit ${i + 1}, currently ${bit}`);
+        button.setAttribute("aria-pressed", String(bit === "1"));
+      });
+      onChange();
+    }
+    root.addEventListener("input", (event) => {
+      const card = event.target.closest("[data-bank-index]");
+      if (!card) return;
+      const record = getRecord(indexOf(card));
+      if (event.target.matches("[data-bank-answer]")) {
+        record.answers[Number(event.target.dataset.bankAnswer)] = event.target.value;
+        edit(card, record);
+      } else if (event.target.matches("[data-bank-written]")) {
+        record.written = event.target.value;
+        edit(card, record);
+      }
+    });
+    root.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || !event.target.matches("[data-bank-answer]")) return;
+      event.preventDefault();
+      const index = indexOf(event.target.closest("[data-bank-index]"));
+      checkResponse(getRecord(index));
+      redraw(index, "check");
+    });
+    root.addEventListener("click", (event) => {
+      const pixel = event.target.closest("[data-pixel]"), bitButton = event.target.closest("[data-bank-bit]");
+      if (pixel || bitButton) {
+        const card2 = (pixel || bitButton).closest("[data-bank-index]"), record2 = getRecord(indexOf(card2));
+        const bits = Array.from({ length: record2.question.meta.data.length }, (_, i) => record2.answers[0].replace(/\s/g, "")[i] === "1" ? "1" : "0");
+        const index2 = Number(pixel ? pixel.dataset.pixel : bitButton.dataset.bankBit);
+        bits[index2] = bits[index2] === "1" ? "0" : "1";
+        record2.answers[0] = bits.join("");
+        if (pixel) {
+          pixel.classList.toggle("on", bits[index2] === "1");
+          pixel.setAttribute("aria-pressed", String(bits[index2] === "1"));
+        } else card2.querySelector("[data-bank-answer]").value = record2.answers[0];
+        edit(card2, record2);
+        return;
+      }
+      const button = event.target.closest("[data-bank-action]");
+      if (!button) return;
+      const action = button.dataset.bankAction, card = button.closest("[data-bank-index]");
+      if (!card) {
+        onAction(action);
+        return;
+      }
+      const index = indexOf(card), record = getRecord(index);
+      if (action === "check") checkResponse(record);
+      else if (action === "working") record.working = !record.working;
+      else if (action === "new" && onNew) onNew(index, record);
+      else return;
+      redraw(index, action);
+    });
+  }
+  function mountFullPracticeCard(card, question, index, topicLabel) {
+    const record = createResponse(question);
+    card.className = "question bank-question full-practice-bank";
+    card.dataset.bankIndex = String(index);
+    function redraw(_, action = "") {
+      card.innerHTML = questionHTML(record, index, "full-practice", { topicLabel, allowNew: false });
+      if (action) card.querySelector(`[data-bank-action="${action}"]`)?.focus();
+    }
+    bindBankCards(card, { getRecord: () => record, redraw });
+    redraw(index);
+  }
   function mountPractice(root) {
     const group = root.dataset.bankGroup, config = GROUPS[group], params = new URLSearchParams(location.search);
     const savedSeed = params.get(config.prefix + "code");
     let settings = normaliseSettings(group, { type: params.get(config.prefix + "type"), count: params.get(config.prefix + "count"), seed: savedSeed && /^\d{1,10}$/.test(savedSeed) ? Number(savedSeed) : freshSeed() });
-    let records = [];
+    let records2 = [];
     function summary() {
-      const exact = records.filter((r) => r.question.fields.length), written2 = records.filter((r) => !r.question.fields.length);
+      const exact = records2.filter((r) => r.question.fields.length), written2 = records2.filter((r) => !r.question.fields.length);
       root.querySelector(".bank-summary").textContent = `${exact.length ? `Exact answers: ${exact.filter((r) => r.complete).length} / ${exact.length} correct (${exact.filter((r) => r.checked).length} checked). ` : ""}${written2.length ? `${written2.length} written explanation${written2.length === 1 ? "" : "s"}: use the worked methods to plan and review.` : ""}`;
     }
     function saveSettings() {
@@ -650,49 +1007,17 @@
     }
     function generate(newSeed = false, save = false) {
       settings = normaliseSettings(group, { ...settings, seed: newSeed ? freshSeed(settings.seed) : settings.seed });
-      records = createPracticeSet(group, settings).map(createResponse);
-      root.innerHTML = practiceHTML(group, settings, records);
+      records2 = createPracticeSet(group, settings).map(createResponse);
+      root.innerHTML = practiceHTML(group, settings, records2);
       summary();
       if (save) saveSettings();
     }
     function redraw(index, focusAction = "") {
       const card = root.querySelector(`[data-bank-index="${index}"]`);
-      card.innerHTML = questionHTML(records[index], index, group);
+      card.innerHTML = questionHTML(records2[index], index, group);
       if (focusAction) card.querySelector(`[data-bank-action="${focusAction}"]`)?.focus();
       summary();
     }
-    function refreshFeedback(card, record) {
-      const feedback = card.querySelector(".feedback");
-      feedback.className = "feedback";
-      feedback.textContent = "";
-      card.querySelectorAll("[data-bank-answer]").forEach((input) => input.removeAttribute("aria-invalid"));
-      summary();
-    }
-    function syncBits(card, record) {
-      const bits = record.answers[0]?.replace(/\s/g, "") || "";
-      card.querySelectorAll("[data-bank-bit]").forEach((button, i) => {
-        const bit = bits[i] === "1" ? "1" : "0";
-        button.dataset.value = bit;
-        button.textContent = bit;
-        button.setAttribute("aria-label", `Bit ${i + 1}, currently ${bit}`);
-        button.setAttribute("aria-pressed", String(bit === "1"));
-      });
-    }
-    root.addEventListener("input", (event) => {
-      const card = event.target.closest("[data-bank-index]");
-      if (!card) return;
-      const record = records[Number(card.dataset.bankIndex)];
-      if (event.target.matches("[data-bank-answer]")) {
-        record.answers[Number(event.target.dataset.bankAnswer)] = event.target.value;
-        resetFeedback(record);
-        refreshFeedback(card, record);
-        syncBits(card, record);
-      } else if (event.target.matches("[data-bank-written]")) {
-        record.written = event.target.value;
-        resetFeedback(record);
-        refreshFeedback(card, record);
-      }
-    });
     root.addEventListener("change", (event) => {
       if (event.target.matches("[data-bank-type], [data-bank-count]")) {
         settings.type = root.querySelector("[data-bank-type]").value;
@@ -700,78 +1025,47 @@
         generate(true, true);
       }
     });
-    root.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" || !event.target.matches("[data-bank-answer]")) return;
-      event.preventDefault();
-      const index = Number(event.target.closest("[data-bank-index]").dataset.bankIndex);
-      checkResponse(records[index]);
-      redraw(index, "check");
-    });
-    root.addEventListener("click", (event) => {
-      const bitButton = event.target.closest("[data-bank-bit]");
-      if (bitButton) {
-        const card2 = bitButton.closest("[data-bank-index]"), record2 = records[Number(card2.dataset.bankIndex)];
-        const bits = Array.from({ length: record2.question.meta.data.length }, (_, i) => record2.answers[0].replace(/\s/g, "")[i] === "1" ? "1" : "0");
-        const index2 = Number(bitButton.dataset.bankBit);
-        bits[index2] = bits[index2] === "1" ? "0" : "1";
-        record2.answers[0] = bits.join("");
-        card2.querySelector("[data-bank-answer]").value = record2.answers[0];
-        resetFeedback(record2);
-        refreshFeedback(card2, record2);
-        syncBits(card2, record2);
-        return;
-      }
-      const button = event.target.closest("[data-bank-action]");
-      if (!button) return;
-      const action = button.dataset.bankAction;
-      if (action === "print") {
-        window.print();
-        return;
-      }
-      if (action === "generate") {
-        generate(true, true);
-        return;
-      }
-      if (action === "clear") {
-        records = records.map((record2) => createResponse(record2.question));
-        root.innerHTML = practiceHTML(group, settings, records);
-        summary();
-        root.querySelector('[data-bank-action="clear"]').focus();
-        return;
-      }
-      if (action === "check-all") {
-        records.forEach((record2, index2) => {
-          if (record2.question.fields.length) {
-            checkResponse(record2);
-            redraw(index2);
-          }
-        });
-        summary();
-        return;
-      }
-      const card = button.closest("[data-bank-index]");
-      if (!card) return;
-      const index = Number(card.dataset.bankIndex), record = records[index];
-      if (action === "check") checkResponse(record);
-      if (action === "working") record.working = !record.working;
-      if (action === "new") {
+    bindBankCards(root, {
+      getRecord: (index) => records2[index],
+      redraw,
+      onChange: summary,
+      onAction(action) {
+        if (action === "print") window.print();
+        if (action === "generate") generate(true, true);
+        if (action === "clear") {
+          records2 = records2.map((record) => createResponse(record.question));
+          root.innerHTML = practiceHTML(group, settings, records2);
+          summary();
+          root.querySelector('[data-bank-action="clear"]').focus();
+        }
+        if (action === "check-all") {
+          records2.forEach((record, index) => {
+            if (record.question.fields.length) {
+              checkResponse(record);
+              redraw(index);
+            }
+          });
+          summary();
+        }
+      },
+      onNew(index, record) {
         let next;
         for (let attempt = 0; attempt < 12; attempt++) {
           next = makeQuestion(record.question.skill, record.question.level % 3 + 1, freshSeed());
           if (next.prompt !== record.question.prompt) break;
         }
-        records[index] = createResponse(next);
+        records2[index] = createResponse(next);
       }
-      redraw(index, action);
     });
     generate();
     return { get records() {
-      return records;
+      return records2;
     }, get settings() {
       return settings;
     } };
   }
   if (typeof document !== "undefined") {
+    globalThis.BytesizeFullPracticeBank = { topics: FULL_PRACTICE_TOPICS, generator: createFullPracticeGenerator, mountCard: mountFullPracticeCard };
     document.querySelectorAll("[data-bank-group]").forEach(mountPractice);
   }
 })();

@@ -1,6 +1,5 @@
-"use strict";
 (() => {
-  // ../bytesize-hub/dist/student/number-chain-model.js
+  // bytesize-pages-v27/dist/student/number-chain-model.js
   var toBinary = (value) => value.toString(2).padStart(8, "0");
   var CHAIN_FINISHES = Object.freeze([
     { id: "hex", label: "Hexadecimal" },
@@ -127,7 +126,7 @@
     throw new Error("Could not create a fresh number chain.");
   }
 
-  // ../bytesize-hub/dist/student/number-chain.js
+  // bytesize-pages-v27/dist/student/number-chain.js
   var escapeHTML = (value) => String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   function seedFromBrowser2() {
     return crypto.getRandomValues(new Uint32Array(1))[0];

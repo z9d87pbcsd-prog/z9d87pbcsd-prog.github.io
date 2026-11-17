@@ -1,6 +1,5 @@
-"use strict";
 (() => {
-  // ../bytesize-hub/dist/student/topic-menu.js
+  // bytesize-pages-v27/dist/student/topic-menu.js
   var STUDENT_TOPIC_GROUPS = [
     { id: "units", label: "Units", topics: ["units"] },
     { id: "bases", label: "Number bases", topics: ["binary-decimal", "binary-hex", "hex-binary", "hex-decimal", "decimal-hex"] },

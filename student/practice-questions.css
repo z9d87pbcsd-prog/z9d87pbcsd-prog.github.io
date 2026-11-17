@@ -45,6 +45,13 @@
 .bank-bit-row { display:flex; flex-wrap:wrap; gap:4px; }
 .bank-bit { display:grid; place-items:center; width:32px; min-height:36px; border:1px solid #9b8cda; border-radius:5px; background:#241e47; color:#ece5ff; font:700 1rem ui-monospace,monospace; padding:4px; }
 .bank-bit[data-value="1"] { background:#c1fb7b; color:#241e47; border-color:#c1fb7b; }
+.full-practice-bank .bank-figure .number-display { text-align:center; font:700 1.05rem/1.55 ui-monospace,monospace; overflow-wrap:anywhere; }
+.full-practice-bank .bank-figure .figure-caption { margin:.6rem 0; font-size:.84rem; }
+.full-practice-bank .bank-figure svg { display:block; width:100%; max-width:320px; max-height:240px; margin:auto; padding:8px; border-radius:8px; background:#faf9ff; color:#342759; }
+.full-practice-bank .bitmap-grid { display:grid; grid-template-columns:repeat(var(--cols),minmax(0,1fr)); width:min(100%,calc(var(--cols) * 40px)); margin:10px 0; border:1px solid #8173a9; }
+.full-practice-bank .bitmap-grid .pixel { display:block; aspect-ratio:1; width:100%; min-width:0; border-radius:0; border:1px solid #8173a9; background:#fff; padding:0; }
+.full-practice-bank .bitmap-grid .pixel.on { background:#211b46; }
+.full-practice-bank .bitmap-grid .pixel:focus-visible { outline-offset:-3px; outline-color:#1a7a9e; }
 .bank-print-name, .bank-print-space, .bank-print-workspace { display:none; }
 .student-bank-practice button:focus-visible, .student-bank-practice input:focus-visible, .student-bank-practice textarea:focus-visible, .student-bank-practice select:focus-visible, .bank-mode-picker select:focus-visible { outline:3px solid #c1fb7b; outline-offset:3px; }
 @media (max-width:900px) { .student-bank-practice .bank-questions { grid-template-columns:1fr; } }
@@ -62,4 +69,8 @@
  .bank-figure th, .bank-figure td { color:#19334a; border-color:#879ca3; padding:2mm; }
  .bank-figure th, .bank-prompt .number-display { background:white; color:#19334a; border-color:#879ca3; }
  .bank-figure { overflow:visible; }
+ .full-practice-bank { break-inside:avoid; }
+ .full-practice-bank .bank-figure svg { max-height:54mm; }
+ .full-practice-bank .bitmap-grid { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+ .full-practice-bank .bitmap-grid.editable .pixel.on { background:white!important; }
 }

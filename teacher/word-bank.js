@@ -110,9 +110,9 @@ export const COMMON_WORDS=Object.freeze(words(`
 `).filter(word=>word.length>=3&&word.length<=6&&!COMPUTING_WORDS.includes(word)));
 export const ENCODING_WORDS=Object.freeze([...COMPUTING_WORDS,...COMMON_WORDS]);
 const excludedWord=()=>Object.assign(new RangeError('No unused words remain for this word length.'),{code:'WORD_POOL_EXHAUSTED'});
-export function chooseEncodingWord(random,lengths=[3,4,5,6],{excludeWords=new Set(),preferComputing=false}={}){
+export function chooseEncodingWord(random,lengths=[3,4,5,6],{excludeWords=new Set(),preferComputing=false,requireRepeatedLetter=false}={}){
  const excluded=excludeWords instanceof Set?excludeWords:new Set(excludeWords);
- const eligible=word=>lengths.includes(word.length)&&!excluded.has(word);
+ const eligible=word=>lengths.includes(word.length)&&!excluded.has(word)&&(!requireRepeatedLetter||new Set(word).size<word.length);
  const computing=COMPUTING_WORDS.filter(eligible),common=COMMON_WORDS.filter(eligible);
  // Worksheets consume the computing vocabulary first, then the common-word reserve.
  const pool=computing.length&&(preferComputing||!common.length||random()<.8)?computing:common;

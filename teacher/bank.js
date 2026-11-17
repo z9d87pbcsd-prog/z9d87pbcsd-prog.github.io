@@ -1,5 +1,6 @@
 import {chooseEncodingWord} from './word-bank.js';
-// Original Bytesize practice. Scope: AQA 8525, section 3.3.
+import {SYSTEMS_TOPICS,SYSTEMS_SKILLS,SYSTEMS_GUIDES,makeSystemsQuestion} from './unit4.js';
+// Original Bytesize practice. Scope: AQA 8525, sections 3.3 and 3.4.
 export const SOURCE='https://www.aqa.org.uk/subjects/computer-science/gcse/computer-science-8525/specification/subject-content/fundamentals-of-data-representation';
 export const TOPICS=[
  ['bases','3.3.1','Number bases','01','What a bit pattern means','#7260cf'],
@@ -9,8 +10,10 @@ export const TOPICS=[
  ['characters','3.3.5','Character encoding','Aa','ASCII, sequences and Unicode','#ac5278'],
  ['images','3.3.6','Representing images','▦','Pixels, colour depth and bitmaps','#3a8a67'],
  ['sound','3.3.7','Representing sound','∿','Sampling and file sizes','#386f9c'],
- ['compression','3.3.8','Data compression','⋈','Huffman coding and RLE','#8a61ab']
-].map(([id,ref,title,icon,desc,color])=>({id,ref,title,icon,desc,color}));
+ ['compression','3.3.8','Data compression','⋈','Huffman coding and RLE','#8a61ab'],
+ ...SYSTEMS_TOPICS
+].map(([id,ref,title,icon,desc,color])=>({id,ref,title,icon,desc,color,unit:ref.startsWith('3.4.')?'4':'3'}));
+export const UNITS=[{id:'3',title:'Data representation'},{id:'4',title:'Computer systems'}];
 const skill=(id,topic,title,desc,objective,misconception)=>({id,topic,title,desc,objective,misconception,ref:TOPICS.find(t=>t.id===topic).ref});
 export const SKILLS=[
  skill('base-facts','bases','Recognise number bases','Digits, base values and place value.','Recognise base 2, base 10 and base 16.','The base describes the number of available digits, not the number of digits in a value.'),
@@ -55,10 +58,20 @@ export const SKILLS=[
  skill('huffman-decode','compression','Decode a Huffman message','Return to the root after each leaf.','Decode an encoded bitstream using its supplied tree.','A code ends when a leaf is reached, not after a fixed number of bits.'),
  skill('huffman-size','compression','Calculate Huffman savings','Frequency × code length, then compare ASCII.','Calculate compressed size, ASCII size and the bits saved.','Count bits, not the decimal value of the bitstream. The ASCII width is stated in the question.'),
  skill('rle-encode','compression','Encode using RLE','Store consecutive count/value pairs.','Express a binary row using run length encoding.','Only combine adjacent identical values; do not merge separated runs.'),
- skill('rle-decode','compression','Decode using RLE','Expand every frequency/data pair.','Reconstruct binary data from count/value pairs.','The first value in a pair is the count; the second is the data value.')
+ skill('rle-decode','compression','Decode using RLE','Expand every frequency/data pair.','Reconstruct binary data from count/value pairs.','The first value in a pair is the count; the second is the data value.'),
+ ...SYSTEMS_SKILLS.map(args=>skill(...args))
 ];
+export const UNIT3_IDS=Object.freeze(SKILLS.filter(s=>s.ref.startsWith('3.3.')).map(s=>s.id));
+export function interleaveUnits(ids){
+ const data=[],systems=[];
+ for(const id of ids)(UNIT3_IDS.includes(id)?data:systems).push(id);
+ if(!data.length||!systems.length)return ids;
+ const [first,second]=UNIT3_IDS.includes(ids[0])?[data,systems]:[systems,data];
+ return Array.from({length:Math.max(first.length,second.length)},(_,i)=>[first[i],second[i]]).flat().filter(Boolean);
+}
 export const LEVELS=['Foundation','Core','Apply'];
 export const TOPIC_GUIDES={
+ ...SYSTEMS_GUIDES,
  bases:['Binary uses two digits, 0 and 1; decimal uses ten; hexadecimal uses sixteen, 0–9 and A–F.','Computers store data and instructions as bit patterns. Two distinguishable electronic states can represent the two bit values.','Interpretation depends on the encoding and context. The same bits can be read as a number, a character or part of an image or sound.','A hexadecimal digit represents four bits, giving people a shorter representation of long binary patterns.'],
  conversions:['Eight bits represent values from 0 to 255. The eight place values are 128, 64, 32, 16, 8, 4, 2 and 1.','To read binary, add the place values containing 1. To write binary, select the place values that sum to the decimal value.','Convert between binary and hexadecimal in groups of four bits. Use leading zero placeholders within a group.','For a two-digit hexadecimal value, multiply the left digit’s value by 16 and add the right digit’s value. A–F represent 10–15.'],
  units:['A bit is one binary digit; a byte is eight bits. The symbols b and B have different meanings.','The decimal prefixes in this unit use factors of 1,000: kB, MB, GB and TB.','To convert to a smaller byte unit, multiply by 1,000 for each step; to a larger unit, divide. Convert bytes to bits separately using eight.','Put quantities in the same unit before comparing them.'],
@@ -86,7 +99,7 @@ export function huffmanData(text){
  const root=queue[0],codes={};function walk(n,p){if(n.c!==undefined)codes[n.c]=p||'0';else{walk(n.left,p+'0');walk(n.right,p+'1');}}walk(root,'');
  return {root,codes,counts,encoded:[...text].map(c=>codes[c]).join(''),text};
 }
-export function treeFigure(data){let leaf=0,depth=0;const nodes=[],edges=[];function layout(n,d){const o={n,y:34+d*74};depth=Math.max(depth,d);if(n.c!==undefined)o.x=42+leaf++*88;else{const l=layout(n.left,d+1),r=layout(n.right,d+1);o.x=(l.x+r.x)/2;edges.push([o,l,0],[o,r,1]);}nodes.push(o);return o;}layout(data.root,0);const w=Math.max(180,leaf*88),h=depth*74+74;return `<svg class="huffman-tree" viewBox="0 0 ${w} ${h}" role="img" aria-label="Huffman tree. Each node shows its frequency; left branches are 0 and right branches are 1.">${edges.map(([a,b,v])=>`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="currentColor" stroke-width="1.6"/><text x="${(a.x+b.x)/2+(v?9:-9)}" y="${(a.y+b.y)/2}" text-anchor="middle" class="edge-label">${v}</text>`).join('')}${nodes.map(({n,x,y})=>`<circle cx="${x}" cy="${y}" r="20" fill="${n.c!==undefined?'#ede8ff':'#f4f6fa'}" stroke="#8e81b3"/><text x="${x}" y="${y+5}" text-anchor="middle">${n.f}</text>${n.c!==undefined?`<text class="leaf-label" x="${x}" y="${y+39}" text-anchor="middle">${n.c===' '?'space':esc(n.c)}</text>`:''}`).join('')}</svg>`;}
+export function treeFigure(data,{leafSpacing=88}={}){let leaf=0,depth=0;const nodes=[],edges=[];function layout(n,d){const o={n,y:34+d*74};depth=Math.max(depth,d);if(n.c!==undefined)o.x=42+leaf++*leafSpacing;else{const l=layout(n.left,d+1),r=layout(n.right,d+1);o.x=(l.x+r.x)/2;edges.push([o,l,0],[o,r,1]);}nodes.push(o);return o;}layout(data.root,0);const w=Math.max(180,88+(leaf-1)*leafSpacing),h=depth*74+74;return `<svg class="huffman-tree" viewBox="0 0 ${w} ${h}" role="img" aria-label="Huffman tree. Each node shows its frequency; left branches are 0 and right branches are 1.">${edges.map(([a,b,v])=>`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="currentColor" stroke-width="1.6"/><text x="${(a.x+b.x)/2+(v?9:-9)}" y="${(a.y+b.y)/2}" text-anchor="middle" class="edge-label">${v}</text>`).join('')}${nodes.map(({n,x,y})=>`<circle cx="${x}" cy="${y}" r="20" fill="${n.c!==undefined?'#ede8ff':'#f4f6fa'}" stroke="#8e81b3"/><text x="${x}" y="${y+5}" text-anchor="middle">${n.f}</text>${n.c!==undefined?`<text class="leaf-label" x="${x}" y="${y+39}" text-anchor="middle">${n.c===' '?'space':esc(n.c)}</text>`:''}`).join('')}</svg>`;}
 function samplingFigure(rate=8){const points=Array.from({length:61},(_,i)=>{const x=20+i*4;return[x,64-36*Math.sin(i/60*Math.PI*3)];});const sampled=Array.from({length:rate},(_,i)=>{const p=i/(rate-1);return[20+p*240,64-36*Math.sin(p*Math.PI*3)];});return `<svg class="waveform" viewBox="0 0 290 150" role="img" aria-label="An analogue wave with amplitude measurements at equally spaced sampling times"><line x1="20" y1="118" x2="275" y2="118" stroke="#9aa7b6"/><line x1="20" y1="14" x2="20" y2="118" stroke="#9aa7b6"/><polyline points="${points.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#9183c4" stroke-width="2.5"/>${sampled.map(([x,y])=>`<line x1="${x}" y1="118" x2="${x}" y2="${y}" stroke="#2d8d78" stroke-dasharray="3 3"/><circle cx="${x}" cy="${y}" r="4" fill="#2d8d78"/>`).join('')}<text x="145" y="142" text-anchor="middle">time →</text><text x="30" y="14">amplitude</text></svg>`;}
 const ascii=()=>`<div class="ascii-ref">${table(['Group','First code','Last code'],[['A–Z','A = 65','Z = 90'],['a–z','a = 97','z = 122'],['0–9','0 = 48','9 = 57'],['space','32','32']])}</div>`;
 const field=(label,answer,kind='number')=>({label,answer:String(answer),kind});
@@ -97,7 +110,9 @@ export function makeQuestion(skillId,level=2,seed=1,options={}){
  const rand=rng(seed),int=(a,b)=>Math.floor(rand()*(b-a+1))+a,pick=a=>a[int(0,a.length-1)];
  const n=int(level===1?0:16,level===1?63:255),bits=bin(n),hx=hex(n);
  let r;
- if(skillId==='base-facts'){
+ if(sk.ref.startsWith('3.4.')){
+  r=makeSystemsQuestion(skillId,level,pick,{q,written,field});
+ }else if(skillId==='base-facts'){
   const b=pick([2,10,16]),digits=b===2?'0 and 1':b===10?'0 to 9':'0 to 9 and A to F';
   r=q(`State the base of <strong>${b===2?'binary':b===10?'decimal':'hexadecimal'}</strong>. Then state how many different digit symbols it uses.`,[field('Base',b),field('Number of digit symbols',b)],[`The base is ${b}.`,`There are ${b} symbols: ${digits}.`],'The base tells you how many different digit symbols are available.');
   if(level===3)r=written(`A learner says “${b===2?'10 in binary means ten':b===16?'10 in hexadecimal means ten':'10 has the same value in every number base'}”. Explain the error.`,['The place values depend on the base.','10 represents one group of the base and zero units: binary 10 is decimal 2; hexadecimal 10 is decimal 16.'],'Consider the value of the left-hand place in a two-digit number.');
@@ -185,7 +200,8 @@ export function makeQuestion(skillId,level=2,seed=1,options={}){
   const context=pick(['a school uploading teaching recordings over a slow connection','a phone storing many photographs with limited space','a website delivering image files to visitors','a school archiving many text documents']);
   r=written(`Explain two benefits of compressing data for ${context}.`,['Compression represents the data using fewer bits.','Smaller files need less storage space.','With the same connection speed, fewer bits can be transferred in less time and use less data.'],'Link the reduction in bits to this situation.');
  }else if(skillId.startsWith('huffman-')){
-  const chosen=chooseEncodingWord(rand,level===1?[3,4]:[3,4,5,6],options),text=chosen.word.toUpperCase(),data=huffmanData(text),chars=Object.keys(data.codes),target=pick(chars),message=text,encoded=[...message].map(c=>data.codes[c]).join(''),figure=treeFigure(data);
+  const repeated=!options.legacyHuffman,lengths=level===1&&(!options.preferComputing||!repeated)?[3,4]:[3,4,5,6];
+  const chosen=chooseEncodingWord(rand,lengths,{...options,requireRepeatedLetter:repeated}),text=chosen.word.toUpperCase(),data=huffmanData(text),chars=Object.keys(data.codes),target=pick(chars),message=text,encoded=[...message].map(c=>data.codes[c]).join(''),figure=treeFigure(data);
   if(skillId==='huffman-read')r=q(`Using this Huffman tree, write the code for <strong>${target}</strong>.`,[field('Huffman code',data.codes[target],'bitstream')],[`Start at the root, which has frequency ${text.length}.`,`Follow branches to the leaf labelled ${target}; record each 0 or 1.`,`The code is ${data.codes[target]}.`],'A character code is the path from the root to that character’s leaf.',figure,{data});
   if(skillId==='huffman-explain'){const sorted=chars.toSorted((a,b)=>data.counts[b]-data.counts[a]),common=sorted[0],rare=sorted.at(-1);r=written(`The message <strong>${text}</strong> is represented by this Huffman tree. Explain how the coding can reduce its storage compared with 7-bit ASCII, and how the original message can be recovered.`,[`Huffman codes can have different lengths. Here, ${common} appears ${data.counts[common]} times and uses ${data.codes[common].length} bits; ${rare} appears ${data.counts[rare]} times and uses ${data.codes[rare].length} bits.`,'Giving frequent characters shorter codes reduces the total number of bits needed for the message.',`ASCII uses 7 bits for each character; these Huffman character codes each use fewer than 7 bits.`,'The supplied tree allows exact decoding: follow the bits to a leaf, record the character and return to the root. Count only message data when comparing these sizes.'],'Compare frequency and code length, then explain how the decoder identifies each character.',figure);}
   if(skillId==='huffman-encode')r=q(`Encode the message <strong>${message}</strong> using this Huffman tree. Write one continuous bitstream.`,[field('Encoded bitstream',encoded,'bitstream')],[...message.split('').map(c=>`${c} → ${data.codes[c]}.`),`Join in order: ${encoded}.`],'Return to the root before looking up each character.',figure,{data,message,encoded});
@@ -195,13 +211,14 @@ export function makeQuestion(skillId,level=2,seed=1,options={}){
    r=q(`The text <strong>${text}</strong> uses these Huffman codes. Calculate the compressed size, the size using <strong>7-bit ASCII</strong>, and the bits saved. Count only the message data; ignore the tree and metadata.`,[field('Huffman size (bits)',compressed),field('ASCII size (bits)',original),field('Bits saved',saved)],[...chars.map(c=>`${c}: ${data.counts[c]} occurrences × ${data.codes[c].length} bits = ${data.counts[c]*data.codes[c].length} bits.`),`Add the contributions: ${compressed} bits.`,`ASCII: ${text.length} characters × 7 = ${original} bits.`,`Saving: ${original} − ${compressed} = ${saved} bits.`],'Multiply each character’s frequency by its own code length, then add.',table(['Character','Frequency','Code','Code length'],rows),{data,compressed,original,saved});
   }
   r.meta={...r.meta,word:text,wordCategory:chosen.wordCategory};
+  if(!repeated)r.legacyHuffman=true;
  }else if(skillId==='rle-encode'||skillId==='rle-decode'){
   let runs=Array.from({length:level===1?3:5},(_,i)=>({count:int(1,6),value:i%2}));if(rand()<.5)runs=runs.map(x=>({...x,value:1-x.value}));const data=runs.map(x=>String(x.value).repeat(x.count)).join(''),pairs=runs.map(x=>`${x.count} ${x.value}`).join(' | ');
   if(skillId==='rle-encode')r=q(`Encode this single binary row using RLE <strong>count/value</strong> pairs.${big(data)}`,[field('Count/value pairs',pairs,'rle')],[...runs.map(x=>`${x.count} consecutive ${x.value}${x.count===1?'':'s'} → (${x.count}, ${x.value}).`),`Pairs in order: ${pairs}.`],'Count one uninterrupted run at a time. Write the count before the value.','',{runs,data});
   else r=q(`Decode these RLE count/value pairs to one binary row.${big(runs.map(x=>`(${x.count}, ${x.value})`).join(' '))}`,[field('Binary row',data,'bitstream')],[...runs.map(x=>`(${x.count}, ${x.value}) → ${String(x.value).repeat(x.count)}.`),`Join the runs: ${data}.`],'Repeat the second value as many times as the first value states.','',{runs,data});
  }
  if(!r)throw Error('Generator missing: '+skillId);
- return {...r,id:`${skillId}-${level}-${seed}`,skill:skillId,level,seed,objective:sk.objective,misconception:sk.misconception,title:sk.title,ref:sk.ref};
+ return {...r,id:`${skillId}-${level}-${seed}${skillId.startsWith('huffman-')&&!r.legacyHuffman?'-h2':''}`,skill:skillId,level,seed,objective:sk.objective,misconception:sk.misconception,title:sk.title,ref:sk.ref};
 }
 export function checkField(f,value){
  const raw=String(value??'').trim();if(!raw)return {correct:false,empty:true,message:'Enter a response first.'};

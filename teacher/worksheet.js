@@ -1,17 +1,18 @@
-import {SKILLS,makeQuestion,rng} from './bank.js';
+import {SKILLS,makeQuestion,rng,interleaveUnits} from './bank.js';
 
 // Identity is based on the task and the supplied information, never its seed or ID.
 export function worksheetQuestionKey(question){
  const clean=text=>String(text||'').replace(/\s+/g,' ').trim();
  if(Number.isFinite(question.meta?.n))return `${question.skill}:${question.meta.n}`;
- const needsFigure=['add-two','add-three','bitmap-encode','bitmap-decode'].includes(question.skill)||question.skill.startsWith('huffman-');
+ const needsFigure=['add-two','add-three','bitmap-encode','bitmap-decode'].includes(question.skill)||question.skill.startsWith('huffman-')||question.ref==='3.4.2';
  return JSON.stringify([question.skill,clean(question.prompt),needsFigure?clean(question.figure):'']);
 }
 
 export function makeWorksheet(ids,count,seed){
  const random=rng(seed),valid=new Set(SKILLS.map(skill=>skill.id));
- const active=[...new Set(ids)].filter(id=>valid.has(id));
+ let active=[...new Set(ids)].filter(id=>valid.has(id));
  for(let i=active.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[active[i],active[j]]=[active[j],active[i]];}
+ active=interleaveUnits(active);
  const requested=Math.max(0,Math.min(24,Math.floor(Number(count)||0)));
  const questions=[],seen=new Set(),usedWords=new Set(),turns=new Map();
  const attemptsPerSkill=240;
